@@ -1,1 +1,1 @@
-from .tk_alert import AlertGenerator, Alert, AlertType, AlertPlacement
+from .tk_alert import AlertGenerator, AlertType

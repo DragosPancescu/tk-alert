@@ -1,16 +1,19 @@
 import tkinter as tk
-from src import AlertGenerator, AlertType, AlertPlacement
+import src.tk_alert as tk_a
 
 if __name__ == "__main__":
     app = tk.Tk()
     app.geometry('600x600')
-    
-    alert_generator = AlertGenerator(app)
+
+    alert_generator = tk_a.AlertGenerator(app)
 
     show_notification_btn = tk.Button(app)
     show_notification_btn.configure(
         text="Send Alert",
-        command=lambda: alert_generator.send("information alert", AlertType.SUCCESS, AlertPlacement.BOTTOM_LEFT)
+        command=lambda: alert_generator.send(
+            "information alert",
+            tk_a.AlertType.INFO,
+            tk.NW)
     )
     show_notification_btn.pack()
 
