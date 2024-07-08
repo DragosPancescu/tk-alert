@@ -52,4 +52,4 @@ ANCHOR_TO_MARGIN_OPTION = {
     "se": {"x": 1, "y": 1},
 }
 
-SUPPORTED_PARENT_TYPES = [tk.Tk, tk.Frame, tk.Toplevel]
+SUPPORTED_PARENT_TYPES = (tk.Tk, tk.Frame, tk.Toplevel)

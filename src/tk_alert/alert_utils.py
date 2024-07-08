@@ -1,10 +1,9 @@
 import tkinter as tk
 
 
-def check_parent_type(parent: tk.Widget, supported_parent_types: list[type]) -> None:
-    for supported_type in supported_parent_types:
-        if not isinstance(parent, supported_type):
-            raise TypeError(f"Unsupported parent type: {type(parent)}, supported (derived from) types are: {supported_parent_types}")
+def check_parent_type(parent: tk.Widget, supported_parent_types: tuple[tk.Widget]) -> None:
+    if not isinstance(parent, supported_parent_types):
+        raise TypeError(f"Unsupported parent type: {type(parent)}, supported (derived from) types are: {supported_parent_types}")
 
 
 def update_x_margin(x: float, margin: int, anchor: str) -> float:
