@@ -11,9 +11,9 @@ if __name__ == "__main__":
     show_notification_btn.configure(
         text="Send Alert",
         command=lambda: alert_generator.send(
-            "Information Alert",
+            "Information Alert - Hello, World!",
             tk_a.AlertType.INFO,
-            tk.NW)
+            tk.NW),
     )
     show_notification_btn.pack()
 

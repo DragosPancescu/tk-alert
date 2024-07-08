@@ -30,7 +30,8 @@ COMMON_DESIGN = {
     "padx": 5,
     "pady": 5,
     "relief": "sunken",
-    "cursor": "hand2"
+    "cursor": "hand2",
+    "anchor": "w"
 }
 
 DESIGN_MAP = {
@@ -40,7 +41,7 @@ DESIGN_MAP = {
     AlertType.ERROR: {"background": "#f95959", "activebackground": "#f95959", **COMMON_DESIGN},
 }
 
-ANCHOR_TO_MARGIN_OPTION = {
+ANCHOR_TO_COORDINATES_OPTION = {
     "nw": {"x": 0, "y": 0},
     "n": {"x": 0.5, "y": 0},
     "ne": {"x": 1, "y": 0},

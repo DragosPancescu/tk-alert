@@ -1,10 +1,13 @@
 import tkinter as tk
 import copy
+import textwrap
+
+from tkinter import font
 
 from .constants import (
     AlertType, 
     DESIGN_MAP, 
-    ANCHOR_TO_MARGIN_OPTION, 
+    ANCHOR_TO_COORDINATES_OPTION, 
     SUPPORTED_PARENT_TYPES
 )
 
@@ -30,27 +33,49 @@ class Alert(tk.Button):
         super().__init__(parent)
         
         self.configure(
-            **self._get_design(text, type, **kwargs),
+            **self._get_design(parent, text, type, **kwargs),
             command=self.destroy
         )
+        self._placement_kwargs = self._calculate_placement_kwargs(parent, anchor, margin)
+    
+    # TODO: Handle truncated text when changing parent size dynamically
+    def _truncate_text(self, parent: tk.Tk | tk.Frame | tk.Toplevel, text: str) -> str:
+        text_font = font.Font(font=self.cget("font")) # Get Font object
+        
+        max_pixel_width = parent.winfo_width() * 0.25 # Max pixel width for our Alert as it is 1/4 of the parent container
+        
+        ellipsis = "..."
+        ellipsis_width = text_font.measure(ellipsis)
+        truncated_text = copy.deepcopy(text)
 
-        self._placement_kwargs = self._calculate_placement_kwargs(
-            parent, anchor, margin)
+        while text_font.measure(truncated_text) > (max_pixel_width - ellipsis_width) and len(truncated_text) > 0:
+            truncated_text = truncated_text[:-1]
 
-    def _get_design(self, text: str, type: AlertType, **kwargs) -> dict:
+        if truncated_text != text:
+            truncated_text = textwrap.shorten(truncated_text, len(truncated_text) - len(ellipsis), placeholder=ellipsis)
+            
+        return truncated_text
+
+    def _get_design(self, parent: tk.Tk | tk.Frame | tk.Toplevel, text: str, type: AlertType, **kwargs) -> dict:
         design = copy.deepcopy(DESIGN_MAP[type])
-        design["text"] = text
-
+        
+        truncated_text = self._truncate_text(parent, text)
+        if truncated_text != text:
+            pass
+            # TODO: Put tooltip if text is truncated
+        
+        design["text"] = truncated_text
+        
         # Update design with kwargs
         design = {**design, **kwargs}
 
         return design
 
-    def _calculate_placement_kwargs(self, parent: tk.Widget, anchor: str, margin: int) -> dict:
+    def _calculate_placement_kwargs(self, parent: tk.Tk | tk.Frame | tk.Toplevel, anchor: str, margin: int) -> dict:
         parent.update_idletasks()  # Ensure dimensions are up to date
 
         # Calculate the relative position based on the anchor
-        margin_options = ANCHOR_TO_MARGIN_OPTION[anchor]
+        margin_options = ANCHOR_TO_COORDINATES_OPTION[anchor]
         x = margin_options["x"] * parent.winfo_width()
         y = margin_options["y"] * parent.winfo_height()
 
