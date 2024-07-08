@@ -1,5 +1,5 @@
 import tkinter as tk
-import src.tk_alert as tk_a
+import src as tk_a
 
 if __name__ == "__main__":
     app = tk.Tk()
@@ -11,7 +11,7 @@ if __name__ == "__main__":
     show_notification_btn.configure(
         text="Send Alert",
         command=lambda: alert_generator.send(
-            "information alert",
+            "Information Alert",
             tk_a.AlertType.INFO,
             tk.NW)
     )
