@@ -1,3 +1,5 @@
+"""Constants module used in alert and alert_utils."""
+
 import tkinter as tk
 
 from enum import unique, Enum
@@ -9,6 +11,7 @@ class AlertType(Enum):
 
     SUCCESS, INFO, WARNING, ERROR are the possible types.
     """
+    
     SUCCESS = 1
     """Success alert type, use this for green colored alerts.
     """

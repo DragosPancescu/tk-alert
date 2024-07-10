@@ -1,3 +1,11 @@
+"""
+Main module that hosts the Alert and AlertGenerator classes.
+
+The package will use this module to import AlertGenerator and AlertType.
+
+Custom configuration for the alert will be done using AlertGenerator, not by accessing the Alert class implementation.
+"""
+
 import tkinter as tk
 import copy
 
@@ -19,6 +27,7 @@ from .alert_utils import (
 # TODO: Handle truncated text when changing parent size dynamically
 class Alert(tk.Button):
     """Alert widget, derived from tk.Button.
+
     Takes as init arguments the following: 
         parent (tk.Tk | tk.Frame | tk.Toplevel): Parent of the Alert widget.
         text (str): Text displayed in the Alert message.
@@ -88,7 +97,7 @@ class Alert(tk.Button):
 
 
 class AlertGenerator():
-    """Driver class for placing alerts on the screen
+    """Driver class for placing alerts on the screen.
 
     Takes as init argument only the parent of the alert, where the Alert widget will sit when placed.
     Restricted to the following Widgets: tk.Tk, tk.Frame, tk.TopLevel
@@ -108,7 +117,7 @@ class AlertGenerator():
         self._already_sent = False
 
     def send(self, text: str, type: AlertType, anchor: str, duration: int | None = 2, margin: int | None = 15, **kwargs) -> None:
-        """Creates the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
+        """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
         Args:
             text: Text message to be sent
