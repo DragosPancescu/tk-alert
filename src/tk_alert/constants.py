@@ -6,7 +6,7 @@ from enum import unique, Enum
 @unique
 class AlertType(Enum):
     """Type of the alert that dictates the default appearence of the GUI.
-    
+
     SUCCESS, INFO, WARNING, ERROR are the possible types.
     """
     SUCCESS = 1
@@ -24,8 +24,8 @@ class AlertType(Enum):
 
 
 COMMON_DESIGN = {
-    "foreground": "#f8f8f8",
-    "activeforeground": "#f8f8f8",
+    "foreground": "#0d0907",
+    "activeforeground": "#0d0907",
     "borderwidth": 0,
     "padx": 5,
     "pady": 5,
@@ -35,9 +35,9 @@ COMMON_DESIGN = {
 }
 
 DESIGN_MAP = {
-    AlertType.SUCCESS: {"background": "#41cc4f", "activebackground": "#41cc4f", **COMMON_DESIGN},
+    AlertType.SUCCESS: {"background": "#4bb543", "activebackground": "#41cc4f", **COMMON_DESIGN},
     AlertType.INFO: {"background": "#3f96fd", "activebackground": "#3f96fd", **COMMON_DESIGN},
-    AlertType.WARNING: {"background": "#eed202", "activebackground": "#eed202", **COMMON_DESIGN},
+    AlertType.WARNING: {"background": "#e9d543", "activebackground": "#eed202", **COMMON_DESIGN},
     AlertType.ERROR: {"background": "#f95959", "activebackground": "#f95959", **COMMON_DESIGN},
 }
 

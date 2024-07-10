@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 with open("README.rst", "r") as f:
     long_description = f.read()
-    
+
 setup(
     name="tk-alert",
     version="0.0.1",
