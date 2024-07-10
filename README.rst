@@ -6,6 +6,8 @@
 .. |PyPI license| image:: https://img.shields.io/pypi/l/ansicolortags.svg
    :target: https://pypi.python.org/pypi/ansicolortags/
 
-==========
- tk-alert
-==========
+#############
+tk-alert
+#############
+
+Lightweight, self-contained package for sending GUI alerts using tkinter.
