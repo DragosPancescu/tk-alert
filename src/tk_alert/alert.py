@@ -24,7 +24,6 @@ from .alert_utils import (
 )
 
 
-# TODO: Handle truncated text when changing parent size dynamically
 class Alert(tk.Button):
     """Alert widget, derived from tk.Button.
 
@@ -46,8 +45,9 @@ class Alert(tk.Button):
         super().__init__(self.parent)
 
         # Configs
+        self.design = self._get_design(text, type, **kwargs)
         self.configure(
-            **self._get_design(text, type, **kwargs),
+            **self.design,
             command=self.destroy
         )
         self._placement_kwargs = self._calculate_placement_kwargs(anchor, margin)
@@ -57,13 +57,20 @@ class Alert(tk.Button):
         self.bind("<Configure>", lambda event: self._update_alert_text(event))
 
     def _update_alert_text(self, event):
-        truncated_text = truncate_text(self, self.parent, self.text)
+        truncated_text = truncate_text(self, self.parent, self.text, self.design["image"].width())
         self.configure(text=truncated_text)
 
     def _get_design(self, text: str, type: AlertType, **kwargs) -> dict:
         design = copy.deepcopy(DESIGN_MAP[type])
+        
+        # Set icon
+        icon_path = design["icon_path"]
+        design["image"] = tk.PhotoImage(file=icon_path)
+        
+        design.pop("icon_path")
 
-        truncated_text = truncate_text(self, self.parent, text)
+        # Transform text
+        truncated_text = truncate_text(self, self.parent, text, design["image"].width())
         if truncated_text.endswith("..."):
             pass
             # TODO: Put tooltip if text is truncated
@@ -114,15 +121,16 @@ class AlertGenerator():
         check_parent_type(parent, SUPPORTED_PARENT_TYPES)
 
         self._parent = parent
+        # TODO: Don't send if already sent
         self._already_sent = False
 
-    def send(self, text: str, type: AlertType, anchor: str, duration: int | None = 2, margin: int | None = 15, **kwargs) -> None:
+    def send(self, text: str, type: AlertType, anchor: str | None = tk.NW, duration: int | None = 2, margin: int | None = 15, **kwargs) -> None:
         """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
         Args:
             text: Text message to be sent
             type: Type of alert, check AlertType enum for possible values
-            anchor: Anchor that determines the placement, supports tk anchor constants. Example tk.NW
+            anchor: (optional) Anchor that determines the placement, supports tk anchor constants. Defaults to tk.NW
             duration (optional): How much time, in seconds, should the Alert be shown to the user. Defaults to 2.
             margin (optional): Margin of the Alert widget. Defaults to 15.
 

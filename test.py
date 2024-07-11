@@ -3,7 +3,7 @@ import src as tk_a
 
 if __name__ == "__main__":
     app = tk.Tk()
-    app.geometry('600x600')
+    app.geometry("800x800")
 
     alert_generator = tk_a.AlertGenerator(app)
 
@@ -12,9 +12,10 @@ if __name__ == "__main__":
         text="Send Alert",
         command=lambda: alert_generator.send(
             text="Alert information: Hello, World!",
-            type=tk_a.AlertType.SUCCESS,
+            type=tk_a.AlertType.INFO,
             anchor=tk.NW,
-            duration=10),
+            duration=10,
+        ),
     )
     show_notification_btn.pack()
 

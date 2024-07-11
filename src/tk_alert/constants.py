@@ -1,8 +1,9 @@
 """Constants module used in alert and alert_utils."""
 
+import os
 import tkinter as tk
 
-from enum import unique, Enum
+from enum import unique, auto, Enum
 
 
 @unique
@@ -11,37 +12,58 @@ class AlertType(Enum):
 
     SUCCESS, INFO, WARNING, ERROR are the possible types.
     """
-    
-    SUCCESS = 1
+
+    SUCCESS = auto()
     """Success alert type, use this for green colored alerts.
     """
-    INFO = 2
+    INFO = auto()
     """Information alert type, use this for blue colored alerts.
     """
-    WARNING = 3
+    WARNING = auto()
     """Warning alert type, use this for yellow colored alerts.
     """
-    ERROR = 4
+    ERROR = auto()
     """Error alert type, use this for red colored alerts.
     """
 
 
 COMMON_DESIGN = {
-    "foreground": "#0d0907",
-    "activeforeground": "#0d0907",
+    "foreground": "#0E0E0C",
+    "activeforeground": "#0E0E0C",
     "borderwidth": 0,
-    "padx": 5,
-    "pady": 5,
-    "relief": "sunken",
+    "padx": 7.5,
+    "pady": 7.5,
+    "relief": tk.SUNKEN,
     "cursor": "hand2",
-    "anchor": "w"
+    "anchor": tk.W,
+    "compound": tk.LEFT,
 }
 
 DESIGN_MAP = {
-    AlertType.SUCCESS: {"background": "#4bb543", "activebackground": "#41cc4f", **COMMON_DESIGN},
-    AlertType.INFO: {"background": "#3f96fd", "activebackground": "#3f96fd", **COMMON_DESIGN},
-    AlertType.WARNING: {"background": "#e9d543", "activebackground": "#eed202", **COMMON_DESIGN},
-    AlertType.ERROR: {"background": "#f95959", "activebackground": "#f95959", **COMMON_DESIGN},
+    AlertType.SUCCESS: {
+        "background": "#58B866",
+        "activebackground": "#58B866",
+        "icon_path": os.path.join(os.path.dirname(__file__), "icons", "success-icon.png"),
+        **COMMON_DESIGN,
+    },
+    AlertType.INFO: {
+        "background": "#5FA5F7",
+        "activebackground": "#5FA5F7",
+        "icon_path": os.path.join(os.path.dirname(__file__), "icons", "information-icon.png"),
+        **COMMON_DESIGN,
+    },
+    AlertType.WARNING: {
+        "background": "#EAD644",
+        "activebackground": "#EAD644",
+        "icon_path": os.path.join(os.path.dirname(__file__), "icons", "warning-icon.png"),
+        **COMMON_DESIGN,
+    },
+    AlertType.ERROR: {
+        "background": "#FF7373",
+        "activebackground": "#FF7373",
+        "icon_path": os.path.join(os.path.dirname(__file__), "icons", "error-icon.png"),
+        **COMMON_DESIGN,
+    },
 }
 
 ANCHOR_TO_COORDINATES_OPTION = {
