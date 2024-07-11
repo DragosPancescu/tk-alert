@@ -12,7 +12,7 @@ if __name__ == "__main__":
         text="Send Alert",
         command=lambda: alert_generator.send(
             text="Alert information: Hello, World!",
-            type=tk_a.AlertType.INFO,
+            type=tk_a.AlertType.SUCCESS,
             anchor=tk.NW,
             duration=10,
         ),
@@ -20,3 +20,4 @@ if __name__ == "__main__":
     show_notification_btn.pack()
 
     app.mainloop()
+    

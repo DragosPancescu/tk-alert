@@ -5,9 +5,7 @@ import textwrap
 from tkinter import font
 
 
-def check_parent_type(
-    parent: tk.Widget, supported_parent_types: tuple[tk.Widget]
-) -> None:
+def check_parent_type(parent: tk.Widget, supported_parent_types: tuple[tk.Widget]) -> None:
     if not isinstance(parent, supported_parent_types):
         raise TypeError(
             f"Unsupported parent type: {type(parent)}, supported (derived from) types are: {supported_parent_types}"
@@ -25,26 +23,19 @@ def truncate_text(alert: tk.Widget, parent: tk.Tk | tk.Frame | tk.Toplevel, text
     max_pixel_width = parent.winfo_width() * 0.25 - ellipsis_width - icon_width
 
     # While text width in pixel count is bigger than the maximum pixel width allowed we truncate characters
-    while (
-        text_font.measure(truncated_text) > (max_pixel_width - ellipsis_width)
-        and len(truncated_text) > 0
-    ):
+    while (text_font.measure(truncated_text) > (max_pixel_width - ellipsis_width) and len(truncated_text) > 0):
         truncated_text = truncated_text[:-1]
 
     if truncated_text == text:
         return text
-
-    if " " in truncated_text:
-        return textwrap.shorten(
-            truncated_text, len(truncated_text) - len(ellipsis), placeholder=ellipsis
-        )
-
-    # Corner case when the alert is small in width and the text is only an ellipsis,
-    # in this particular case we don't need to truncate anymore as the GUI will behave in an unexpected way for the user
-    # TODO: This still does not work
-    if alert.cget("text") == ellipsis and len(truncated_text) < len(alert.cget("text")):
+    
+    if len(truncated_text[:-3]) < len(ellipsis):
         return ellipsis
-
+    
+    shortened_text = textwrap.shorten(truncated_text, len(truncated_text) - len(ellipsis), placeholder=ellipsis)
+    if " " in truncated_text and text_font.measure(shortened_text) < max_pixel_width:
+        return shortened_text
+    
     return truncated_text[:-3] + ellipsis
 
 
