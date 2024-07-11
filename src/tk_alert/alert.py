@@ -37,27 +37,39 @@ class Alert(tk.Button):
     Supports all the other Widget.configure() kwargs that a tk.Button has available.
     """
 
-    def __init__(self, parent: tk.Tk | tk.Frame | tk.Toplevel, text: str, type: AlertType, anchor: str, margin: int, **kwargs) -> None:
-        self.parent = parent
-        self.text = text
-
-        check_parent_type(self.parent, SUPPORTED_PARENT_TYPES)
-        super().__init__(self.parent)
-
+    def __init__(self, parent: tk.Tk | tk.Frame | tk.Toplevel, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, **kwargs) -> None:
+        # Enforce parent type before init
+        check_parent_type(parent, SUPPORTED_PARENT_TYPES)
+        super().__init__(parent)
+        
+        # Properties
+        self._parent = parent
+        self._text = text
+        self._width_percentage = width_percentage
+        
+        # Set default command if command method is not provided
+        if not kwargs.get("command", None):
+            kwargs["command"] = self.destroy
+            
         # Configs
         self.design = self._get_design(text, type, **kwargs)
-        self.configure(
-            **self.design,
-            command=self.destroy
-        )
+        self.configure(**self.design,  )
         self._placement_kwargs = self._calculate_placement_kwargs(anchor, margin)
 
         # Callback binding on width change, as width is changing dynamically with the parent,
         # we can only bind <Configure> on the Alert
         self.bind("<Configure>", lambda event: self._update_alert_text(event))
+    
+    @property
+    def text(self):
+        return self._text
+    
+    @property
+    def width_percentage(self):
+        return self._width_percentage
 
     def _update_alert_text(self, event):
-        truncated_text = truncate_text(self, self.parent, self.text, self.design["image"].width())
+        truncated_text = truncate_text(self, self._parent, self._text, self.design["image"].width())
         self.configure(text=truncated_text)
 
     def _get_design(self, text: str, type: AlertType, **kwargs) -> dict:
@@ -70,10 +82,10 @@ class Alert(tk.Button):
         design.pop("icon_path")
 
         # Transform text
-        truncated_text = truncate_text(self, self.parent, text, design["image"].width())
+        truncated_text = truncate_text(self, self._parent, text, design["image"].width())
         if truncated_text.endswith("..."):
             pass
-            # TODO: Put tooltip if text is truncated
+            # TODO: In the future attach tooltip if text is truncated
 
         design["text"] = truncated_text
 
@@ -83,12 +95,12 @@ class Alert(tk.Button):
         return design
 
     def _calculate_placement_kwargs(self, anchor: str, margin: int) -> dict:
-        self.parent.update_idletasks()  # Ensure dimensions are up to date
+        self._parent.update_idletasks()  # Ensure dimensions are up to date
 
         # Calculate the relative position based on the anchor
         margin_options = ANCHOR_TO_COORDINATES_OPTION[anchor]
-        x = margin_options["x"] * self.parent.winfo_width()
-        y = margin_options["y"] * self.parent.winfo_height()
+        x = margin_options["x"] * self._parent.winfo_width()
+        y = margin_options["y"] * self._parent.winfo_height()
 
         # Update x with margin
         x = update_x_margin(x, margin, anchor)
@@ -96,7 +108,7 @@ class Alert(tk.Button):
         # Update y with margin
         y = update_y_margin(y, margin, anchor)
 
-        placement = {"anchor": anchor, "x": x, "y": y, "relwidth": 0.25}
+        placement = {"anchor": anchor, "x": x, "y": y, "relwidth": self._width_percentage}
         return placement
 
     def place_alert(self) -> None:
@@ -124,7 +136,7 @@ class AlertGenerator():
         # TODO: Don't send if already sent
         self._already_sent = False
 
-    def send(self, text: str, type: AlertType, anchor: str | None = tk.NW, duration: int | None = 2, margin: int | None = 15, **kwargs) -> None:
+    def send(self, text: str, type: AlertType, anchor: str | None = tk.NW, duration: int | None = 2, margin: int | None = 15, width_percentage: float | None = 0.25, **kwargs) -> None:
         """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
         Args:
@@ -133,10 +145,11 @@ class AlertGenerator():
             anchor: (optional) Anchor that determines the placement, supports tk anchor constants. Defaults to tk.NW
             duration (optional): How much time, in seconds, should the Alert be shown to the user. Defaults to 2.
             margin (optional): Margin of the Alert widget. Defaults to 15.
+            width_percentage (optional): Used to calculate width of the alert in accordance to the width of the parent, Defaults to 0.25
 
         Supports all the other Widget.configure() kwargs that a tk.Button has available.
         """
-        alert = Alert(self._parent, text, type, anchor, margin, **kwargs)
+        alert = Alert(self._parent, text, type, anchor, margin, width_percentage, **kwargs)
 
         alert.place_alert()
 

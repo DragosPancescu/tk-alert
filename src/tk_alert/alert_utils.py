@@ -20,7 +20,7 @@ def truncate_text(alert: tk.Widget, parent: tk.Tk | tk.Frame | tk.Toplevel, text
     truncated_text = copy.deepcopy(text)
 
     # Max pixel width for our Alert as it is 1/4 of the parent container
-    max_pixel_width = parent.winfo_width() * 0.25 - ellipsis_width - icon_width
+    max_pixel_width = parent.winfo_width() * alert.width_percentage - ellipsis_width - icon_width
 
     # While text width in pixel count is bigger than the maximum pixel width allowed we truncate characters
     while (text_font.measure(truncated_text) > (max_pixel_width - ellipsis_width) and len(truncated_text) > 0):

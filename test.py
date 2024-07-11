@@ -14,7 +14,7 @@ if __name__ == "__main__":
             text="Alert information: Hello, World!",
             type=tk_a.AlertType.SUCCESS,
             anchor=tk.NW,
-            duration=10,
+            duration=10
         ),
     )
     show_notification_btn.pack()
