@@ -1,5 +1,5 @@
 import tkinter as tk
-import src as tk_a
+import tk_alert as tk_a
 
 
 if __name__ == "__main__":
@@ -21,4 +21,3 @@ if __name__ == "__main__":
     show_notification_btn.pack()
 
     app.mainloop()
-    

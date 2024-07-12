@@ -4,11 +4,12 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 setup(
-    name="tk-alert",
+    name="tk_alert",
     version="0.0.1",
     description="Tkinter based package for sending GUI alerts / notifications.",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
+    include_package_data=True,
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Dragos Pancescu",

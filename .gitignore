@@ -1,3 +1,6 @@
 /src/__pycache__
 /src/tk_alert/__pycache__
+src/tk_alert.egg-info
 /venv
+dist
+build
