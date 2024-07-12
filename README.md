@@ -5,9 +5,19 @@
 
 Lightweight, self-contained package for sending GUI alerts using tkinter.
 
-**Work in Progress** - This package is a work in progress. Below is the roadmap for the upcoming developments I wish to implement:
+## Table of Contents
 
+1. **[Introduction](#tk-alert)**  
+2. **[Features](#features)**  
+3. **[Usage](#usage)**  
+   - **[Setup](#1-setup)**  
+   - **[Example Code](#2-example-code)**  
+   - **[Default Alert Design](#3-default-alert-design)**  
+5. **[Roadmap Items](#roadmap-items)**  
+6. **[License](#license)**  
+  
 ## Features
+
 🚀 Minimal setup for sending GUI alerts in a Tkinter app
 
 🎨 Highly customizable Alert widget with a modern design by default
@@ -58,6 +68,8 @@ if __name__ == "__main__":
 
 ## Roadmap Items
 
+This package is a **work in progress**. Below is the roadmap for the upcoming developments I wish to implement:
+
 - **Tooltip on Hover**: Whenever the text inside the alert is truncated, a tooltip should appear on hover.
 - **Support for Multiple Python 3 Versions**: Extend compatibility to support multiple versions of Python 3.
 - **Tests**: Implement testing to ensure code reliability.
@@ -68,4 +80,4 @@ if __name__ == "__main__":
 
 ## License
 
-This project is licensed under the **MIT License**. See the LICENSE file for more details.
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE.txt) file for more details.
