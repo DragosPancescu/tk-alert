@@ -4,7 +4,7 @@ import tk_alert as tk_a
 
 if __name__ == "__main__":
     app = tk.Tk()
-    app.geometry("800x800")
+    app.geometry("1200x800")
 
     alert_generator = tk_a.AlertGenerator(app)
 

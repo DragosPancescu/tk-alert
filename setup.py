@@ -5,6 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="tk_alert",
+    url="https://github.com/DragosPancescu/tk-alert",
     version="0.0.1",
     description="Tkinter based package for sending GUI alerts / notifications.",
     package_dir={"": "src"},

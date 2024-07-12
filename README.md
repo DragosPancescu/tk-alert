@@ -64,7 +64,7 @@ if __name__ == "__main__":
 ```
 ### 3. Default Alert Design
 
-<img src="resources/AlertsDesign.png" width="410" height="202">
+<img src="src/resources/AlertsDesign.png" width="410" height="202">
 
 ## Roadmap Items
 
@@ -80,4 +80,4 @@ This package is a **work in progress**. Below is the roadmap for the upcoming de
 
 ## License
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE.txt) file for more details.
+This project is licensed under the **MIT License**. See the [LICENSE](https://github.com/DragosPancescu/tk-alert/blob/main/LICENSE.txt) file for more details.

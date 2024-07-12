@@ -130,6 +130,7 @@ class Alert(tk.Button):
 
     def place_alert(self) -> None:
         self.place(**self._placement_kwargs)
+        self.lift()
 
 
 class AlertGenerator():
@@ -155,7 +156,7 @@ class AlertGenerator():
     def parent(self):
         return self._parent
         
-    def send(self, text: str, type: AlertType, anchor: str | None = tk.NW, duration: int | None = 2, margin: int | None = 15, width_percentage: float | None = 0.25, **kwargs) -> None:
+    def send(self, text: str, type: AlertType, anchor: str | None = tk.NW, duration: int | None = 2, margin: int | None = 15, width_percentage: float | None = 0.33, **kwargs) -> None:
         """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
         Args:
@@ -164,7 +165,7 @@ class AlertGenerator():
          - anchor: (optional) Anchor that determines the placement, supports tk anchor constants. Defaults to tk.NW
          - duration (optional): How much time, in seconds, should the Alert be shown to the user. Defaults to 2.
          - margin (optional): Margin of the Alert widget. Defaults to 15.
-         - width_percentage (optional): Used to calculate width of the alert in accordance to the width of the parent, Defaults to 0.25
+         - width_percentage (optional): Used to calculate width of the alert in accordance to the width of the parent, Defaults to 0.33
 
         Supports all the other Widget.configure() kwargs that a tk.Button has available.
         """
