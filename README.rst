@@ -11,3 +11,8 @@ tk-alert
 #############
 
 Lightweight, self-contained package for sending GUI alerts using tkinter.
+
+License
+=======
+
+This project is licensed under the MIT License. See the LICENSE file for more details.
