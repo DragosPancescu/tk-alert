@@ -12,9 +12,9 @@ if __name__ == "__main__":
     show_notification_btn.configure(
         text="Send Alert",
         command=lambda: alert_generator.send(
-            text="Alert information: Lorem Ipsum Dolor Sit Amet",
+            text="Alert information: Lorem Ipsum",
             type=tk_a.AlertType.INFO,
-            anchor=tk.CENTER,
+            anchor=tk.SE,
             duration=10
         ),
     )
