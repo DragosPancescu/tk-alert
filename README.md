@@ -52,9 +52,9 @@ if __name__ == "__main__":
 
     app.mainloop()
 ```
-### 3. Alert Types
+### 3. Default Alert Design
 
-
+<img src="resources/AlertsDesign.png" width="410" height="202">
 
 ## Roadmap Items
 
@@ -64,7 +64,8 @@ if __name__ == "__main__":
 - **Configuration System for the AlertGenerator Class**: Develop a configuration system where a config object can be created and injected into the class. This will eliminate the need to pass configurations at runtime every time the `.send()` method is called.
 - **Better Icon Support**: Enhance icon support, allowing users to change icons rather than relying on predefined options.
 - **Minimum Width Constraint**: Implement a feature to constrain the alert with a `min_width` argument.
+- **Animations**: Implement an animation system.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the **MIT License**. See the LICENSE file for more details.
