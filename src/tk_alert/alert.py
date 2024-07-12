@@ -1,9 +1,11 @@
 """
 Main module that hosts the Alert and AlertGenerator classes.
 
-The package will use this module to import AlertGenerator and AlertType.
+The package will use this module to import Alert, AlertGenerator and AlertType.
 
 Custom configuration for the alert will be done using AlertGenerator, not by accessing the Alert class implementation.
+
+ - Unless of course you feel the need to :)
 """
 
 import tkinter as tk
@@ -28,11 +30,12 @@ class Alert(tk.Button):
     """Alert widget, derived from tk.Button.
 
     Takes as init arguments the following: 
-        parent (tk.Tk | tk.Frame | tk.Toplevel): Parent of the Alert widget.
-        text (str): Text displayed in the Alert message.
-        type (AlertType): Type of the alert (info, warning, error or success)
-        anchor (str): Anchor that determines the placement, supports tk anchor constants
-        margin (int): Margin of the Alert widget on screen
+     - parent (tk.Tk | tk.Frame | tk.Toplevel): Parent of the Alert widget.
+     - text (str): Text displayed in the Alert message.
+     - type (AlertType): Type of the alert (info, warning, error or success)
+     - anchor (str): Anchor that determines the placement, supports tk anchor constants
+     - margin (int): Margin of the Alert widget on screen
+     - width_percentage (flaot): Used to calculate width of the alert in accordance to the width of the parent
 
     Supports all the other Widget.configure() kwargs that a tk.Button has available.
     """
@@ -46,19 +49,21 @@ class Alert(tk.Button):
         self._parent = parent
         self._text = text
         self._width_percentage = width_percentage
+        self._anchor = anchor
+        self._margin = margin
         
         # Set default command if command method is not provided
         if not kwargs.get("command", None):
             kwargs["command"] = self.destroy
             
         # Configs
-        self.design = self._get_design(text, type, **kwargs)
-        self.configure(**self.design,  )
-        self._placement_kwargs = self._calculate_placement_kwargs(anchor, margin)
+        self.design = self._get_design(type, **kwargs)
+        self.configure(**self.design)
+        self._placement_kwargs = self._calculate_placement_kwargs()
 
         # Callback binding on width change, as width is changing dynamically with the parent,
         # we can only bind <Configure> on the Alert
-        self.bind("<Configure>", lambda event: self._update_alert_text(event))
+        self.bind("<Configure>", lambda event: self._configure_callback(event))
     
     @property
     def text(self):
@@ -67,12 +72,24 @@ class Alert(tk.Button):
     @property
     def width_percentage(self):
         return self._width_percentage
+    
+    ##### <Configure> bind callback logic #####
+    
+    def _configure_callback(self, event):
+        self.__update_alert_placement()
+        self.__update_alert_text()
 
-    def _update_alert_text(self, event):
-        truncated_text = truncate_text(self, self._parent, self._text, self.design["image"].width())
+    def __update_alert_text(self):
+        truncated_text = truncate_text(self, self._parent, self.design["image"].width())
         self.configure(text=truncated_text)
 
-    def _get_design(self, text: str, type: AlertType, **kwargs) -> dict:
+    def __update_alert_placement(self):
+        self._placement_kwargs = self._calculate_placement_kwargs()
+        self.place_alert()
+
+    #####
+
+    def _get_design(self, type: AlertType, **kwargs) -> dict:
         design = copy.deepcopy(DESIGN_MAP[type])
         
         # Set icon
@@ -82,7 +99,7 @@ class Alert(tk.Button):
         design.pop("icon_path")
 
         # Transform text
-        truncated_text = truncate_text(self, self._parent, text, design["image"].width())
+        truncated_text = truncate_text(self, self._parent, design["image"].width())
         if truncated_text.endswith("..."):
             pass
             # TODO: In the future attach tooltip if text is truncated
@@ -94,21 +111,21 @@ class Alert(tk.Button):
 
         return design
 
-    def _calculate_placement_kwargs(self, anchor: str, margin: int) -> dict:
+    def _calculate_placement_kwargs(self) -> dict:
         self._parent.update_idletasks()  # Ensure dimensions are up to date
 
         # Calculate the relative position based on the anchor
-        margin_options = ANCHOR_TO_COORDINATES_OPTION[anchor]
+        margin_options = ANCHOR_TO_COORDINATES_OPTION[self._anchor]
         x = margin_options["x"] * self._parent.winfo_width()
         y = margin_options["y"] * self._parent.winfo_height()
 
         # Update x with margin
-        x = update_x_margin(x, margin, anchor)
+        x = update_x_margin(x, self._margin, self._anchor)
 
         # Update y with margin
-        y = update_y_margin(y, margin, anchor)
+        y = update_y_margin(y, self._margin, self._anchor)
 
-        placement = {"anchor": anchor, "x": x, "y": y, "relwidth": self._width_percentage}
+        placement = {"anchor": self._anchor, "x": x, "y": y, "relwidth": self._width_percentage}
         return placement
 
     def place_alert(self) -> None:
@@ -133,19 +150,21 @@ class AlertGenerator():
         check_parent_type(parent, SUPPORTED_PARENT_TYPES)
 
         self._parent = parent
-        # TODO: Don't send if already sent
-        self._already_sent = False
 
+    @property
+    def parent(self):
+        return self._parent
+        
     def send(self, text: str, type: AlertType, anchor: str | None = tk.NW, duration: int | None = 2, margin: int | None = 15, width_percentage: float | None = 0.25, **kwargs) -> None:
         """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
         Args:
-            text: Text message to be sent
-            type: Type of alert, check AlertType enum for possible values
-            anchor: (optional) Anchor that determines the placement, supports tk anchor constants. Defaults to tk.NW
-            duration (optional): How much time, in seconds, should the Alert be shown to the user. Defaults to 2.
-            margin (optional): Margin of the Alert widget. Defaults to 15.
-            width_percentage (optional): Used to calculate width of the alert in accordance to the width of the parent, Defaults to 0.25
+         - text: Text message to be sent
+         - type: Type of alert, check AlertType enum for possible values
+         - anchor: (optional) Anchor that determines the placement, supports tk anchor constants. Defaults to tk.NW
+         - duration (optional): How much time, in seconds, should the Alert be shown to the user. Defaults to 2.
+         - margin (optional): Margin of the Alert widget. Defaults to 15.
+         - width_percentage (optional): Used to calculate width of the alert in accordance to the width of the parent, Defaults to 0.25
 
         Supports all the other Widget.configure() kwargs that a tk.Button has available.
         """

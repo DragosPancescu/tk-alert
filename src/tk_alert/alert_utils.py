@@ -12,12 +12,12 @@ def check_parent_type(parent: tk.Widget, supported_parent_types: tuple[tk.Widget
         )
 
 
-def truncate_text(alert: tk.Widget, parent: tk.Tk | tk.Frame | tk.Toplevel, text: str, icon_width: int) -> str:
+def truncate_text(alert: tk.Widget, parent: tk.Tk | tk.Frame | tk.Toplevel, icon_width: int) -> str:
     text_font = font.Font(font=alert.cget("font"))  # Gets Font object
     ellipsis = "..."
     ellipsis_width = text_font.measure(ellipsis)
 
-    truncated_text = copy.deepcopy(text)
+    truncated_text = copy.deepcopy(alert.text)
 
     # Max pixel width for our Alert as it is 1/4 of the parent container
     max_pixel_width = parent.winfo_width() * alert.width_percentage - ellipsis_width - icon_width
@@ -26,17 +26,22 @@ def truncate_text(alert: tk.Widget, parent: tk.Tk | tk.Frame | tk.Toplevel, text
     while (text_font.measure(truncated_text) > (max_pixel_width - ellipsis_width) and len(truncated_text) > 0):
         truncated_text = truncated_text[:-1]
 
-    if truncated_text == text:
-        return text
+    # No change
+    if truncated_text == alert.text:
+        return alert.text
     
-    if len(truncated_text[:-3]) < len(ellipsis):
+    # Smaller then ellipsis we just return ellipsis
+    if len(truncated_text[:-len(ellipsis)]) < len(ellipsis):
         return ellipsis
     
+    # Corner case where the truncated text is between the second and fourth condition we return the text after 
+    # it is processed by textwrap.shorten() to be sure we don't break words
     shortened_text = textwrap.shorten(truncated_text, len(truncated_text) - len(ellipsis), placeholder=ellipsis)
     if " " in truncated_text and text_font.measure(shortened_text) < max_pixel_width:
         return shortened_text
     
-    return truncated_text[:-3] + ellipsis
+    # Happy path just return ellipsis instead of the last 3 characters
+    return truncated_text[:-len(ellipsis)] + ellipsis
 
 
 def update_x_margin(x: float, margin: int, anchor: str) -> float:

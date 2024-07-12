@@ -1,1 +1,1 @@
-from .alert import AlertGenerator, AlertType
+from .alert import Alert, AlertGenerator, AlertType
