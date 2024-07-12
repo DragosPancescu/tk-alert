@@ -26,7 +26,7 @@ First, install the library using pip:
 pip install tk_alert
 ```
 
-### 2. Example code
+### 2. Example Code
 
 ```python
 import tkinter as tk
@@ -52,6 +52,9 @@ if __name__ == "__main__":
 
     app.mainloop()
 ```
+### 3. Alert Types
+
+
 
 ## Roadmap Items
 
