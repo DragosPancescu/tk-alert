@@ -64,7 +64,7 @@ if __name__ == "__main__":
 ```
 ### 3. Default Alert Design
 
-<img src="src/resources/AlertsDesign.png" width="410" height="202">
+<img src="https://github.com/DragosPancescu/tk-alert/blob/main/resources/AlertsDesign.png" width="410" height="202">
 
 ## Roadmap Items
 
