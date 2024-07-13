@@ -26,14 +26,14 @@ Lightweight, self-contained package for sending GUI alerts using tkinter.
   
 ## Usage
 
-To use the `tk_alert` library in a simple Tkinter application, follow the example below. This example demonstrates how to create a basic Tkinter window and utilize the `tk_alert` library to display an alert notification when a button is clicked.
+This example demonstrates how to create a basic Tkinter window and utilize the `tk-alert` library to display an alert notification when a button is clicked.
 
 ### 1. Setup
 
 First, install the library using pip:
 
 ```sh
-pip install tk_alert
+pip install tk-alert
 ```
 
 ### 2. Example Code
