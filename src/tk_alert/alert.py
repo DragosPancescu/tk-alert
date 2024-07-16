@@ -42,7 +42,11 @@ class Alert(tk.Button):
 
     def __init__(self, parent: tk.Tk | tk.Frame | tk.Toplevel, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, **kwargs) -> None:
         # Enforce parent type before init
-        check_parent_type(parent, SUPPORTED_PARENT_TYPES)
+        if not check_parent_type(parent, SUPPORTED_PARENT_TYPES):
+            raise TypeError(
+                f"Unsupported parent type: {type(parent)}, supported (derived from) types are: {SUPPORTED_PARENT_TYPES}"
+            )
+            
         super().__init__(parent)
         
         # Properties
@@ -147,8 +151,11 @@ class AlertGenerator():
     """
 
     def __init__(self, parent: tk.Tk | tk.Frame | tk.Toplevel) -> None:
-        # Check to see if parent has an allowed type
-        check_parent_type(parent, SUPPORTED_PARENT_TYPES)
+        # Enforce parent type before init
+        if not check_parent_type(parent, SUPPORTED_PARENT_TYPES):
+            raise TypeError(
+                f"Unsupported parent type: {type(parent)}, supported (derived from) types are: {SUPPORTED_PARENT_TYPES}"
+            )
 
         self._parent = parent
 

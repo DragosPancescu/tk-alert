@@ -4,3 +4,4 @@ src/tk_alert.egg-info
 /venv
 dist
 build
+/test/__pycache__

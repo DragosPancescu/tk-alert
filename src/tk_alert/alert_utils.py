@@ -5,11 +5,10 @@ import textwrap
 from tkinter import font
 
 
-def check_parent_type(parent: tk.Widget, supported_parent_types: tuple[tk.Widget]) -> None:
+def check_parent_type(parent: tk.Widget, supported_parent_types: tuple[tk.Widget]) -> bool:
     if not isinstance(parent, supported_parent_types):
-        raise TypeError(
-            f"Unsupported parent type: {type(parent)}, supported (derived from) types are: {supported_parent_types}"
-        )
+        return False
+    return True
 
 
 def truncate_text(alert: tk.Widget, parent: tk.Tk | tk.Frame | tk.Toplevel, icon_width: int) -> str:
