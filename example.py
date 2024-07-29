@@ -1,7 +1,6 @@
 import tkinter as tk
 import tk_alert as tk_a
 
-
 if __name__ == "__main__":
     app = tk.Tk()
     app.geometry("1200x800")
@@ -13,9 +12,11 @@ if __name__ == "__main__":
         text="Send Alert",
         command=lambda: alert_generator.send(
             text="Alert information: Lorem Ipsum",
-            type=tk_a.AlertType.INFO,
-            anchor=tk.SE,
-            duration=10
+            type=tk_a.AlertType.WARNING,
+            anchor=tk.NE,
+            duration=0,
+            margin=-1,
+            width_percentage=1,
         ),
     )
     show_notification_btn.pack()
