@@ -176,8 +176,21 @@ class AlertGenerator():
 
         Supports all the other Widget.configure() kwargs that a tk.Button has available.
         """
+        
+        # Checks
+        if duration and duration <= 0:
+            raise ValueError(f"Negative duration value: {duration}, allowed values are greater or equal than 0.")
+        
+        if margin and margin <= 0:
+            raise ValueError(f"Negative margin value: {margin}, allowed values are greater or equal than 0.")
+        
+        if width_percentage and (width_percentage <= 0 or width_percentage > 1):
+            raise ValueError(f"Out of bounds width_percentage value: {width_percentage}, allowed values are between 0 (exclusive) and 1 (inclusive)")
+        
+        # Create Alert Widget
         alert = Alert(self._parent, text, type, anchor, margin, width_percentage, **kwargs)
 
+        # Place it
         alert.place_alert()
 
         # Wait duration and destroy
