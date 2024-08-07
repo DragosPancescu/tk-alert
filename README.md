@@ -1,6 +1,6 @@
 [![python](https://img.shields.io/badge/Python-3.10-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/tk-alert)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/tk-alert)](https://pypistats.org/packages/tk-alert)
 
 # tk-alert
 
