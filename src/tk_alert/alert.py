@@ -8,6 +8,9 @@ Custom configuration for the alert will be done using AlertGenerator, not by acc
  - Unless of course you feel the need to :)
 """
 
+# To make typing compatible with 3.8
+from __future__ import annotations
+
 import tkinter as tk
 import copy
 

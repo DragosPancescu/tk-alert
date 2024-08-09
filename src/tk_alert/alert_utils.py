@@ -1,3 +1,6 @@
+# To make typing compatible with 3.8
+from __future__ import annotations
+
 import tkinter as tk
 import copy
 import textwrap

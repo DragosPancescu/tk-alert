@@ -5,3 +5,5 @@ src/tk_alert.egg-info
 dist
 build
 /test/__pycache__
+/requirements.txt
+/.tox
