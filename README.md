@@ -4,7 +4,7 @@
 
 # tk-alert
 
-Lightweight, self-contained package for sending GUI alerts using tkinter.
+> Lightweight, self-contained package for sending GUI alerts using tkinter.
 
 ## Table of Contents
 
