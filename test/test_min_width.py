@@ -63,7 +63,8 @@ def test_min_width_has_no_effect_when_the_alert_is_already_wider(root):
 def test_alert_width_follows_the_parent_across_the_minimum(root, anchor):
     alert = send(AlertGenerator(root), anchor=anchor, min_width=250)
 
-    for geometry, expected in [("300x400", 250), ("1200x400", 396), ("450x400", 250), ("900x400", 297)]:
+    # Windows stay under 1024px wide, CI runners have a 1024x768 screen and Tk cannot make a window larger than it
+    for geometry, expected in [("300x400", 250), ("1000x400", 330), ("450x400", 250), ("900x400", 297)]:
         resize(root, geometry)
         assert alert.winfo_width() == pytest.approx(expected, abs=1), geometry
 

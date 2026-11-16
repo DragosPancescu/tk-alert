@@ -23,7 +23,7 @@ def send(root, text, width_percentage=0.33):
     return [child for child in root.winfo_children() if isinstance(child, Alert)][-1]
 
 
-@pytest.mark.parametrize("geometry", ["300x400", "600x400", "900x400", "1200x400"])
+@pytest.mark.parametrize("geometry", ["300x400", "600x400", "900x400", "1000x400"])
 def test_truncated_text_fits_and_uses_the_available_width(root, geometry):
     """Regression: the ellipsis width was subtracted twice and the text was cut back a
     second time, so a 198px alert showed 'Alert information:...' with 77px left unused."""

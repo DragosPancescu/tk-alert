@@ -1,12 +1,11 @@
 name: Build and release
 
-# Runs when pyproject.toml changes on main. If the version in it has no
+# Runs on every push to main. If the version in pyproject.toml has no
 # v<version> tag yet, runs the tests, builds the sdist and wheel and creates
 # a GitHub release with them attached. Nothing is uploaded to PyPI.
 on:
   push:
     branches: [main]
-    paths: [pyproject.toml]
 
 jobs:
   check:
