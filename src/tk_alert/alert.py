@@ -42,11 +42,12 @@ class Alert(tk.Button):
      - anchor (str): Anchor that determines the placement, supports tk anchor constants
      - margin (int): Margin of the Alert widget on screen
      - width_percentage (flaot): Used to calculate width of the alert in accordance to the width of the parent
+     - min_width (int): Width in pixels the Alert never gets smaller than, 0 means no minimum
 
     Supports all the other Widget.configure() kwargs that a tk.Button has available.
     """
 
-    def __init__(self, parent: tk.Misc, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, **kwargs) -> None:
+    def __init__(self, parent: tk.Misc, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, min_width: int = 0, **kwargs) -> None:
         # Enforce parent type before init
         if not check_parent_type(parent, SUPPORTED_PARENT_TYPES):
             raise TypeError(
@@ -66,12 +67,17 @@ class Alert(tk.Button):
         if width_percentage <= 0 or width_percentage > 1:
             raise ValueError(f"Out of bounds width_percentage value: {width_percentage}, allowed values are between 0 (exclusive) and 1 (inclusive)")
 
+        if min_width < 0:
+            raise ValueError(f"Negative min_width value: {min_width}, allowed values are greater or equal than 0.")
+
         super().__init__(parent)
-        
+
         # Properties
         self._parent = parent
         self._text = text
         self._width_percentage = width_percentage
+        self._min_width = min_width
+        self._extra_width = 0
         self._anchor = anchor
         self._margin = margin
         
@@ -84,22 +90,36 @@ class Alert(tk.Button):
         self.configure(**self.design)
         self._placement_kwargs = self._calculate_placement_kwargs()
 
-        # Placement follows the parent natively (relative coordinates), so the only thing
-        # left to do when the Alert is resized is to re-fit the text to the new width
+        # Placement follows the parent natively (relative coordinates), so the only things
+        # left to do when the Alert is resized are to enforce min_width and re-fit the text
         self.bind("<Configure>", self._configure_callback)
-    
+
     @property
     def text(self):
         return self._text
-    
+
     @property
     def width_percentage(self):
         return self._width_percentage
-    
+
+    @property
+    def min_width(self):
+        return self._min_width
+
     ##### <Configure> bind callback logic #####
-    
+
     def _configure_callback(self, event):
+        self.__update_alert_width()
         self.__update_alert_text()
+
+    def __update_alert_width(self):
+        # Tk's place adds `width` to the relative width, so the Alert keeps following
+        # the parent and only gets the pixels it is missing to reach min_width
+        relative_width = self.winfo_width() - self._extra_width
+        extra_width = max(0, self._min_width - relative_width)
+        if extra_width != self._extra_width:
+            self._extra_width = extra_width
+            self.place_configure(width=extra_width)
 
     def __update_alert_text(self):
         truncated_text = truncate_text(self, self._parent)
@@ -209,7 +229,7 @@ class AlertGenerator():
             self._alerts.remove(alert)
             self._restack()
 
-    def send(self, text: str, type: AlertType, anchor: str | None = None, duration: int | float | None = None, margin: int | float | None = None, width_percentage: float | None = None, **kwargs) -> None:
+    def send(self, text: str, type: AlertType, anchor: str | None = None, duration: int | float | None = None, margin: int | float | None = None, width_percentage: float | None = None, min_width: int | None = None, **kwargs) -> None:
         """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
         Args:
@@ -219,6 +239,7 @@ class AlertGenerator():
          - duration (optional): How much time, in seconds, should the Alert be shown to the user.
          - margin (optional): Margin of the Alert widget.
          - width_percentage (optional): Used to calculate width of the alert in accordance to the width of the parent.
+         - min_width (optional): Width in pixels the Alert never gets smaller than.
 
         The optional arguments that are not passed (or passed as None) take their value from the AlertConfig of the generator.
 
@@ -230,6 +251,7 @@ class AlertGenerator():
         duration = self._config.duration if duration is None else duration
         margin = self._config.margin if margin is None else margin
         width_percentage = self._config.width_percentage if width_percentage is None else width_percentage
+        min_width = self._config.min_width if min_width is None else min_width
         kwargs = {**self._config.button_options, **kwargs}
 
         # Checks, the Alert widget validates the rest of the arguments itself
@@ -237,7 +259,7 @@ class AlertGenerator():
             raise ValueError(f"Negative duration value: {duration}, allowed values are greater or equal than 0.")
 
         # Create Alert Widget
-        alert = Alert(self._parent, text, type, anchor, margin, width_percentage, **kwargs)
+        alert = Alert(self._parent, text, type, anchor, margin, width_percentage, min_width, **kwargs)
 
         # Place it after the alerts already shown on its anchor, and close the gap when it goes away
         self._alerts.append(alert)

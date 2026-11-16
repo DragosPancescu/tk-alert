@@ -19,8 +19,9 @@ def truncate_text(alert: tk.Widget, parent: tk.Misc) -> str:
     # Everything in the Alert that is not text: icon, padding and borders
     non_text_width = alert.winfo_reqwidth() - text_font.measure(alert.cget("text"))
 
-    # Max pixel width for the text, the Alert takes width_percentage of the parent container
-    max_pixel_width = parent.winfo_width() * alert.width_percentage - non_text_width
+    # Max pixel width for the text, the Alert takes width_percentage of the parent container but never less than min_width
+    alert_width = max(parent.winfo_width() * alert.width_percentage, alert.min_width)
+    max_pixel_width = alert_width - non_text_width
 
     # No change
     if text_font.measure(alert.text) <= max_pixel_width:
