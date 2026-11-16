@@ -1,6 +1,6 @@
 [project]
 name = "tk-alert"
-version = "0.0.2"
+version = "1.0.0"
 description = "Tkinter based package for sending GUI alerts / notifications."
 readme = "README.md"
 requires-python = ">=3.8"
