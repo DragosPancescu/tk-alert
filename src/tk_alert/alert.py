@@ -100,7 +100,7 @@ class Alert(tk.Button):
         self.__update_alert_text()
 
     def __update_alert_text(self):
-        truncated_text = truncate_text(self, self._parent, self.design["image"].width())
+        truncated_text = truncate_text(self, self._parent)
         if truncated_text != self.cget("text"):
             self.configure(text=truncated_text)
 
@@ -116,7 +116,7 @@ class Alert(tk.Button):
         design.pop("icon_path")
 
         # Transform text
-        truncated_text = truncate_text(self, self._parent, design["image"].width())
+        truncated_text = truncate_text(self, self._parent)
         if truncated_text.endswith("..."):
             pass
             # TODO: In the future attach tooltip if text is truncated
