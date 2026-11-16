@@ -84,6 +84,7 @@ Arguments of `AlertGenerator.send()`:
 | `margin` | `15` | number, 0 or greater | Pixels between the alert and the edge of the parent. |
 | `width_percentage` | `0.33` | greater than 0, up to 1 | Width of the alert as a fraction of the parent's width. |
 | `min_width` | `0` | number, 0 or greater | Width in pixels the alert never gets narrower than. `0` means no minimum. |
+| `icon` | icon of the `type` | file path, `tk.PhotoImage` or `False` | Icon shown before the text. `False` shows no icon. |
 | `**kwargs` | | any `tk.Button` option | Passed to the alert widget, see [Customization](#4-customization). |
 
 The defaults above can be changed for a whole generator, see [Configuration](#5-configuration). An invalid value raises `ValueError` or `TypeError` before anything is shown.
@@ -104,6 +105,15 @@ alert_generator.send(
 ```
 
 Passing your own `command` replaces the default click-to-dismiss behaviour; the alert still disappears after its duration.
+
+To use your own icon, pass a file path or a `tk.PhotoImage` as `icon`, or `False` for no icon:
+
+```python
+alert_generator.send("Synced", tk_a.AlertType.SUCCESS, icon="assets/cloud.png")
+alert_generator.send("Plain message", tk_a.AlertType.INFO, icon=False)
+```
+
+Icons are loaded by Tk, which reads PNG and GIF files, and are shown at their own size (the built-in icons are 18 pixels wide).
 
 ### 5. Configuration
 
@@ -127,7 +137,7 @@ alert_generator.send("Saved to disk", tk_a.AlertType.SUCCESS)
 alert_generator.send("Could not save", tk_a.AlertType.ERROR, duration=10)
 ```
 
-`AlertConfig` takes `anchor`, `duration`, `margin`, `width_percentage` and `min_width` with the same defaults and allowed values as `send()`, plus `button_options`, a dict of `tk.Button` options applied to every alert. One config can be shared between several generators.
+`AlertConfig` takes `anchor`, `duration`, `margin`, `width_percentage` and `min_width` with the same defaults and allowed values as `send()`, plus `icons`, a dict replacing the icon of an alert type (for example `{tk_a.AlertType.INFO: "assets/bell.png"}`), and `button_options`, a dict of `tk.Button` options applied to every alert. One config can be shared between several generators.
 
 ### 6. Default Alert Design
 
@@ -179,7 +189,7 @@ This package is a **work in progress**. Below is the roadmap for the upcoming de
 - [x] **Tests**: Implement testing to ensure code reliability.
 - [x] **Stacking**: Alerts sent to the same anchor stack instead of overlapping.
 - [x] **Configuration System for the AlertGenerator Class**: Develop a configuration system where a config object can be created and injected into the class. This will eliminate the need to pass configurations at runtime every time the `.send()` method is called.
-- [ ] **Better Icon Support**: Enhance icon support, allowing users to change icons rather than relying on predefined options.
+- [x] **Better Icon Support**: Enhance icon support, allowing users to change icons rather than relying on predefined options.
 - [x] **Minimum Width Constraint**: Implement a feature to constrain the alert with a `min_width` argument.
 - [ ] **Animations**: Implement an animation system.
 

@@ -11,6 +11,7 @@ Custom configuration for the alert will be done using AlertGenerator, not by acc
 # To make typing compatible with 3.8
 from __future__ import annotations
 
+import os
 import tkinter as tk
 import copy
 
@@ -43,11 +44,12 @@ class Alert(tk.Button):
      - margin (int): Margin of the Alert widget on screen
      - width_percentage (flaot): Used to calculate width of the alert in accordance to the width of the parent
      - min_width (int): Width in pixels the Alert never gets smaller than, 0 means no minimum
+     - icon (str | os.PathLike | tk.PhotoImage | bool | None): Path of an image file or a ready PhotoImage, False for no icon, None for the default icon of the type
 
     Supports all the other Widget.configure() kwargs that a tk.Button has available.
     """
 
-    def __init__(self, parent: tk.Misc, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, min_width: int = 0, **kwargs) -> None:
+    def __init__(self, parent: tk.Misc, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, min_width: int = 0, icon: str | os.PathLike | tk.PhotoImage | bool | None = None, **kwargs) -> None:
         # Enforce parent type before init
         if not check_parent_type(parent, SUPPORTED_PARENT_TYPES):
             raise TypeError(
@@ -85,9 +87,13 @@ class Alert(tk.Button):
         if not kwargs.get("command", None):
             kwargs["command"] = self.destroy
             
-        # Configs
-        self.design = self._get_design(type, **kwargs)
-        self.configure(**self.design)
+        # Configs, an icon that can't be loaded or an unknown option must not leave the widget behind
+        try:
+            self.design = self._get_design(type, icon, **kwargs)
+            self.configure(**self.design)
+        except tk.TclError:
+            self.destroy()
+            raise
         self._placement_kwargs = self._calculate_placement_kwargs()
 
         # Placement follows the parent natively (relative coordinates), so the only things
@@ -128,14 +134,18 @@ class Alert(tk.Button):
 
     #####
 
-    def _get_design(self, type: AlertType, **kwargs) -> dict:
+    def _get_design(self, type: AlertType, icon: str | os.PathLike | tk.PhotoImage | bool | None, **kwargs) -> dict:
         design = copy.deepcopy(DESIGN_MAP[type])
-        
-        # Set icon
-        icon_path = design["icon_path"]
-        design["image"] = tk.PhotoImage(file=icon_path)
-        
-        design.pop("icon_path")
+        default_icon_path = design.pop("icon_path")
+
+        # Set icon: the default one of the type, a custom one or none at all
+        if icon is None:
+            icon = default_icon_path
+        if icon is False:
+            icon = ""
+        elif isinstance(icon, (str, os.PathLike)):
+            icon = tk.PhotoImage(file=icon)
+        design["image"] = icon
 
         # Transform text
         truncated_text = truncate_text(self, self._parent)
@@ -229,7 +239,7 @@ class AlertGenerator():
             self._alerts.remove(alert)
             self._restack()
 
-    def send(self, text: str, type: AlertType, anchor: str | None = None, duration: int | float | None = None, margin: int | float | None = None, width_percentage: float | None = None, min_width: int | None = None, **kwargs) -> None:
+    def send(self, text: str, type: AlertType, anchor: str | None = None, duration: int | float | None = None, margin: int | float | None = None, width_percentage: float | None = None, min_width: int | None = None, icon: str | os.PathLike | tk.PhotoImage | bool | None = None, **kwargs) -> None:
         """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
         Args:
@@ -240,6 +250,7 @@ class AlertGenerator():
          - margin (optional): Margin of the Alert widget.
          - width_percentage (optional): Used to calculate width of the alert in accordance to the width of the parent.
          - min_width (optional): Width in pixels the Alert never gets smaller than.
+         - icon (optional): Path of an image file or a ready tk.PhotoImage, False for no icon.
 
         The optional arguments that are not passed (or passed as None) take their value from the AlertConfig of the generator.
 
@@ -252,6 +263,7 @@ class AlertGenerator():
         margin = self._config.margin if margin is None else margin
         width_percentage = self._config.width_percentage if width_percentage is None else width_percentage
         min_width = self._config.min_width if min_width is None else min_width
+        icon = self._config.icons.get(type) if icon is None else icon
         kwargs = {**self._config.button_options, **kwargs}
 
         # Checks, the Alert widget validates the rest of the arguments itself
@@ -259,7 +271,7 @@ class AlertGenerator():
             raise ValueError(f"Negative duration value: {duration}, allowed values are greater or equal than 0.")
 
         # Create Alert Widget
-        alert = Alert(self._parent, text, type, anchor, margin, width_percentage, min_width, **kwargs)
+        alert = Alert(self._parent, text, type, anchor, margin, width_percentage, min_width, icon, **kwargs)
 
         # Place it after the alerts already shown on its anchor, and close the gap when it goes away
         self._alerts.append(alert)

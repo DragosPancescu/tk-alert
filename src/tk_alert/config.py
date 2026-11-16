@@ -20,6 +20,8 @@ class AlertConfig:
      - margin: Margin of the Alert widget. Defaults to 15.
      - width_percentage: Used to calculate width of the alert in accordance to the width of the parent. Defaults to 0.33
      - min_width: Width in pixels the Alert never gets smaller than. Defaults to 0, no minimum.
+     - icons: Icon per AlertType replacing the default one, for example {AlertType.INFO: "bell.png"}.
+       A value is the path of an image file, a ready tk.PhotoImage or False for no icon.
      - button_options: tk.Button options applied to every alert, for example {"font": ("Helvetica", 12)}
     """
 
@@ -28,4 +30,5 @@ class AlertConfig:
     margin: int | float = 15
     width_percentage: float = 0.33
     min_width: int = 0
+    icons: dict = field(default_factory=dict)
     button_options: dict = field(default_factory=dict)
