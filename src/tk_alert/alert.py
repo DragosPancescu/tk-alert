@@ -50,7 +50,20 @@ class Alert(tk.Button):
             raise TypeError(
                 f"Unsupported parent type: {parent.__class__}, supported (derived from) types are: {SUPPORTED_PARENT_TYPES}"
             )
-            
+
+        # Validate the rest before the widget is created, so a bad argument never leaves an orphan widget behind
+        if not isinstance(type, AlertType):
+            raise TypeError(f"Unsupported alert type: {type!r}, supported types are the members of AlertType.")
+
+        if not isinstance(anchor, str) or anchor not in ANCHOR_TO_COORDINATES_OPTION:
+            raise ValueError(f"Unsupported anchor: {anchor!r}, supported anchors are: {list(ANCHOR_TO_COORDINATES_OPTION)}")
+
+        if margin < 0:
+            raise ValueError(f"Negative margin value: {margin}, allowed values are greater or equal than 0.")
+
+        if width_percentage <= 0 or width_percentage > 1:
+            raise ValueError(f"Out of bounds width_percentage value: {width_percentage}, allowed values are between 0 (exclusive) and 1 (inclusive)")
+
         super().__init__(parent)
         
         # Properties
@@ -165,7 +178,7 @@ class AlertGenerator():
     def parent(self):
         return self._parent
         
-    def send(self, text: str, type: AlertType, anchor: str | None = tk.NW, duration: int | None = 2, margin: int | None = 15, width_percentage: float | None = 0.33, **kwargs) -> None:
+    def send(self, text: str, type: AlertType, anchor: str = tk.NW, duration: int | float = 2, margin: int | float = 15, width_percentage: float = 0.33, **kwargs) -> None:
         """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
         Args:
@@ -179,21 +192,15 @@ class AlertGenerator():
         Supports all the other Widget.configure() kwargs that a tk.Button has available.
         """
         
-        # Checks
-        if duration and duration <= 0:
+        # Checks, the Alert widget validates the rest of the arguments itself
+        if duration < 0:
             raise ValueError(f"Negative duration value: {duration}, allowed values are greater or equal than 0.")
-        
-        if margin and margin <= 0:
-            raise ValueError(f"Negative margin value: {margin}, allowed values are greater or equal than 0.")
-        
-        if width_percentage and (width_percentage <= 0 or width_percentage > 1):
-            raise ValueError(f"Out of bounds width_percentage value: {width_percentage}, allowed values are between 0 (exclusive) and 1 (inclusive)")
-        
+
         # Create Alert Widget
         alert = Alert(self._parent, text, type, anchor, margin, width_percentage, **kwargs)
 
         # Place it
         alert.place_alert()
 
-        # Wait duration and destroy
-        alert.after(duration * 1000, alert.destroy)
+        # Wait duration and destroy, Tk only accepts whole milliseconds
+        alert.after(int(duration * 1000), alert.destroy)
