@@ -22,6 +22,8 @@ from .constants import (
     STACK_SPACING
 )
 
+from .config import AlertConfig
+
 from .alert_utils import (
     check_parent_type,
     truncate_text,
@@ -47,7 +49,6 @@ class Alert(tk.Button):
     def __init__(self, parent: tk.Misc, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, **kwargs) -> None:
         # Enforce parent type before init
         if not check_parent_type(parent, SUPPORTED_PARENT_TYPES):
-            # The `type` argument shadows the builtin in this scope, hence parent.__class__
             raise TypeError(
                 f"Unsupported parent type: {parent.__class__}, supported (derived from) types are: {SUPPORTED_PARENT_TYPES}"
             )
@@ -164,7 +165,8 @@ class Alert(tk.Button):
 class AlertGenerator():
     """Driver class for placing alerts on the screen.
 
-    Takes as init argument only the parent of the alert, where the Alert widget will sit when placed.
+    Takes as init arguments the parent of the alert, where the Alert widget will sit when placed,
+    and optionally an AlertConfig with the default options for the alerts it sends.
     Restricted to container widgets: windows, frames, label frames, canvases, paned windows and notebooks (see SUPPORTED_PARENT_TYPES)
 
     .send() is the functionality that sends alerts to the parent Widget.
@@ -174,7 +176,7 @@ class AlertGenerator():
     As after each .send() call the Alert widget gets destroyed it should not impact the memory to have the object as a class attribute.
     """
 
-    def __init__(self, parent: tk.Misc) -> None:
+    def __init__(self, parent: tk.Misc, config: AlertConfig | None = None) -> None:
         # Enforce parent type before init
         if not check_parent_type(parent, SUPPORTED_PARENT_TYPES):
             raise TypeError(
@@ -182,11 +184,16 @@ class AlertGenerator():
             )
 
         self._parent = parent
+        self._config = config if config is not None else AlertConfig()
         self._alerts = []  # Alerts currently on screen, oldest first
 
     @property
     def parent(self):
         return self._parent
+
+    @property
+    def config(self):
+        return self._config
 
     def _restack(self) -> None:
         """Places the alerts on screen so the ones sharing an anchor sit next to each other instead of overlapping."""
@@ -202,20 +209,29 @@ class AlertGenerator():
             self._alerts.remove(alert)
             self._restack()
 
-    def send(self, text: str, type: AlertType, anchor: str = tk.NW, duration: int | float = 2, margin: int | float = 15, width_percentage: float = 0.33, **kwargs) -> None:
+    def send(self, text: str, type: AlertType, anchor: str | None = None, duration: int | float | None = None, margin: int | float | None = None, width_percentage: float | None = None, **kwargs) -> None:
         """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
         Args:
          - text: Text message to be sent
          - type: Type of alert, check AlertType enum for possible values
-         - anchor: (optional) Anchor that determines the placement, supports tk anchor constants. Defaults to tk.NW
-         - duration (optional): How much time, in seconds, should the Alert be shown to the user. Defaults to 2.
-         - margin (optional): Margin of the Alert widget. Defaults to 15.
-         - width_percentage (optional): Used to calculate width of the alert in accordance to the width of the parent, Defaults to 0.33
+         - anchor: (optional) Anchor that determines the placement, supports tk anchor constants.
+         - duration (optional): How much time, in seconds, should the Alert be shown to the user.
+         - margin (optional): Margin of the Alert widget.
+         - width_percentage (optional): Used to calculate width of the alert in accordance to the width of the parent.
+
+        The optional arguments that are not passed (or passed as None) take their value from the AlertConfig of the generator.
 
         Supports all the other Widget.configure() kwargs that a tk.Button has available.
         """
-        
+
+        # Anything not passed for this alert comes from the config
+        anchor = self._config.anchor if anchor is None else anchor
+        duration = self._config.duration if duration is None else duration
+        margin = self._config.margin if margin is None else margin
+        width_percentage = self._config.width_percentage if width_percentage is None else width_percentage
+        kwargs = {**self._config.button_options, **kwargs}
+
         # Checks, the Alert widget validates the rest of the arguments itself
         if duration < 0:
             raise ValueError(f"Negative duration value: {duration}, allowed values are greater or equal than 0.")

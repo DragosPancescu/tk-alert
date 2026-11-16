@@ -15,7 +15,8 @@
    - **[Example Code](#2-example-code)**  
    - **[Options](#3-options)**  
    - **[Customization](#4-customization)**  
-   - **[Default Alert Design](#5-default-alert-design)**  
+   - **[Configuration](#5-configuration)**  
+   - **[Default Alert Design](#6-default-alert-design)**  
 4. **[Known Limitations](#known-limitations)**  
 5. **[Development](#development)**  
 6. **[Roadmap Items](#roadmap-items)**  
@@ -84,7 +85,7 @@ Arguments of `AlertGenerator.send()`:
 | `width_percentage` | `0.33` | greater than 0, up to 1 | Width of the alert as a fraction of the parent's width. |
 | `**kwargs` | | any `tk.Button` option | Passed to the alert widget, see [Customization](#4-customization). |
 
-An invalid value raises `ValueError` or `TypeError` before anything is shown.
+The defaults above can be changed for a whole generator, see [Configuration](#5-configuration). An invalid value raises `ValueError` or `TypeError` before anything is shown.
 
 ### 4. Customization
 
@@ -103,7 +104,31 @@ alert_generator.send(
 
 Passing your own `command` replaces the default click-to-dismiss behaviour; the alert still disappears after its duration.
 
-### 5. Default Alert Design
+### 5. Configuration
+
+To avoid repeating the same options on every call, set them once with an `AlertConfig` and pass it to the generator:
+
+```python
+config = tk_a.AlertConfig(
+    anchor=tk.SE,
+    duration=5,
+    margin=20,
+    width_percentage=0.4,
+    button_options={"font": ("Helvetica", 12)},
+)
+
+alert_generator = tk_a.AlertGenerator(app, config)
+
+# Uses the config
+alert_generator.send("Saved to disk", tk_a.AlertType.SUCCESS)
+
+# An argument passed to send() overrides the config for that alert only
+alert_generator.send("Could not save", tk_a.AlertType.ERROR, duration=10)
+```
+
+`AlertConfig` takes `anchor`, `duration`, `margin` and `width_percentage` with the same defaults and allowed values as `send()`, plus `button_options`, a dict of `tk.Button` options applied to every alert. One config can be shared between several generators.
+
+### 6. Default Alert Design
 
 <img src="https://raw.githubusercontent.com/DragosPancescu/tk-alert/1ea29609d33557d096d39468a062fed07ea59be1/resources/AlertsDesign.png" width="410" height="202">
 
@@ -152,7 +177,7 @@ This package is a **work in progress**. Below is the roadmap for the upcoming de
 - [x] **Support for Multiple Python 3 Versions**: Extend compatibility to support multiple versions of Python 3.
 - [x] **Tests**: Implement testing to ensure code reliability.
 - [x] **Stacking**: Alerts sent to the same anchor stack instead of overlapping.
-- [ ] **Configuration System for the AlertGenerator Class**: Develop a configuration system where a config object can be created and injected into the class. This will eliminate the need to pass configurations at runtime every time the `.send()` method is called.
+- [x] **Configuration System for the AlertGenerator Class**: Develop a configuration system where a config object can be created and injected into the class. This will eliminate the need to pass configurations at runtime every time the `.send()` method is called.
 - [ ] **Better Icon Support**: Enhance icon support, allowing users to change icons rather than relying on predefined options.
 - [ ] **Minimum Width Constraint**: Implement a feature to constrain the alert with a `min_width` argument.
 - [ ] **Animations**: Implement an animation system.

@@ -6,5 +6,6 @@ Contains:
 """
 
 from .alert import Alert, AlertGenerator, AlertType
+from .config import AlertConfig
 
-__all__ = ["Alert", "AlertGenerator", "AlertType"]
+__all__ = ["Alert", "AlertConfig", "AlertGenerator", "AlertType"]
