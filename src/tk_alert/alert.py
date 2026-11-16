@@ -18,7 +18,8 @@ from .constants import (
     AlertType,
     DESIGN_MAP,
     ANCHOR_TO_COORDINATES_OPTION,
-    SUPPORTED_PARENT_TYPES
+    SUPPORTED_PARENT_TYPES,
+    STACK_SPACING
 )
 
 from .alert_utils import (
@@ -147,8 +148,16 @@ class Alert(tk.Button):
         }
         return placement
 
-    def place_alert(self) -> None:
-        self.place(**self._placement_kwargs)
+    def place_alert(self, stack_offset: int = 0) -> None:
+        """Places the Alert, stack_offset moves it that many pixels away from its anchor edge.
+
+        Bottom anchors stack upwards, all the others stack downwards.
+        """
+        placement = dict(self._placement_kwargs)
+        direction = -1 if self._anchor in ["sw", "s", "se"] else 1
+        placement["y"] += direction * stack_offset
+
+        self.place(**placement)
         self.lift()
 
 
@@ -173,11 +182,26 @@ class AlertGenerator():
             )
 
         self._parent = parent
+        self._alerts = []  # Alerts currently on screen, oldest first
 
     @property
     def parent(self):
         return self._parent
-        
+
+    def _restack(self) -> None:
+        """Places the alerts on screen so the ones sharing an anchor sit next to each other instead of overlapping."""
+        used_height = {}  # Pixels already taken by alerts, per anchor
+        for alert in self._alerts:
+            offset = used_height.get(alert._anchor, 0)
+            alert.place_alert(offset)
+            used_height[alert._anchor] = offset + alert.winfo_reqheight() + STACK_SPACING
+
+    def _on_alert_destroyed(self, alert: Alert) -> None:
+        """Forgets the alert and moves the remaining ones to close the gap it left."""
+        if alert in self._alerts:
+            self._alerts.remove(alert)
+            self._restack()
+
     def send(self, text: str, type: AlertType, anchor: str = tk.NW, duration: int | float = 2, margin: int | float = 15, width_percentage: float = 0.33, **kwargs) -> None:
         """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
@@ -196,11 +220,13 @@ class AlertGenerator():
         if duration < 0:
             raise ValueError(f"Negative duration value: {duration}, allowed values are greater or equal than 0.")
 
-        # Create Alert Widget
+        # Create Alert Widge
         alert = Alert(self._parent, text, type, anchor, margin, width_percentage, **kwargs)
 
-        # Place it
-        alert.place_alert()
+        # Place it after the alerts already shown on its anchor, and close the gap when it goes away
+        self._alerts.append(alert)
+        alert.bind("<Destroy>", lambda event: self._on_alert_destroyed(alert), add="+")
+        self._restack()
 
         # Wait duration and destroy, Tk only accepts whole milliseconds
         alert.after(int(duration * 1000), alert.destroy)

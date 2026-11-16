@@ -79,3 +79,6 @@ ANCHOR_TO_COORDINATES_OPTION = {
 }
 
 SUPPORTED_PARENT_TYPES = (tk.Tk, tk.Frame, tk.Toplevel)
+
+# Pixels between two alerts stacked on the same anchor
+STACK_SPACING = 5
