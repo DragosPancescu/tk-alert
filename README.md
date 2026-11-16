@@ -1,4 +1,4 @@
-[![python](https://img.shields.io/badge/Python-3.7%2B-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
+[![python](https://img.shields.io/badge/Python-3.8%2B-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/tk-alert)](https://pypistats.org/packages/tk-alert)
 
@@ -13,18 +13,23 @@
 3. **[Usage](#usage)**  
    - **[Setup](#1-setup)**  
    - **[Example Code](#2-example-code)**  
-   - **[Default Alert Design](#3-default-alert-design)**  
-4. **[Development](#development)**  
-5. **[Roadmap Items](#roadmap-items)**  
-6. **[License](#license)**  
+   - **[Options](#3-options)**  
+   - **[Customization](#4-customization)**  
+   - **[Default Alert Design](#5-default-alert-design)**  
+4. **[Known Limitations](#known-limitations)**  
+5. **[Development](#development)**  
+6. **[Roadmap Items](#roadmap-items)**  
+7. **[License](#license)**  
   
 ## Features
 
-🚀 Minimal setup for sending GUI alerts in a Tkinter app
-
-🎨 Highly customizable Alert widget with a modern design by default
-
-🛠️ Ease of use out-of-the-box
+- Two lines to send an alert: create an `AlertGenerator`, call `.send()`
+- Four alert types (success, info, warning, error) and nine anchor positions
+- Alerts on the same anchor stack, and close the gap when one goes away
+- Click an alert to dismiss it, or let it disappear after its duration
+- Long text is truncated with an ellipsis and re-fitted when the window is resized
+- Every `tk.Button` option can be passed through to restyle an alert
+- No dependencies beyond tkinter
   
 ## Usage
 
@@ -64,13 +69,53 @@ if __name__ == "__main__":
 
     app.mainloop()
 ```
-### 3. Default Alert Design
+
+### 3. Options
+
+Arguments of `AlertGenerator.send()`:
+
+| Argument | Default | Allowed values | Description |
+|---|---|---|---|
+| `text` | required | any string | Message shown in the alert. |
+| `type` | required | `AlertType.SUCCESS`, `AlertType.INFO`, `AlertType.WARNING`, `AlertType.ERROR` | Sets the default colour and icon. |
+| `anchor` | `tk.NW` | `tk.NW`, `tk.N`, `tk.NE`, `tk.W`, `tk.CENTER`, `tk.E`, `tk.SW`, `tk.S`, `tk.SE` | Where in the parent the alert is placed. |
+| `duration` | `2` | number, 0 or greater | Seconds before the alert disappears. |
+| `margin` | `15` | number, 0 or greater | Pixels between the alert and the edge of the parent. |
+| `width_percentage` | `0.33` | greater than 0, up to 1 | Width of the alert as a fraction of the parent's width. |
+| `**kwargs` | | any `tk.Button` option | Passed to the alert widget, see [Customization](#4-customization). |
+
+An invalid value raises `ValueError` or `TypeError` before anything is shown.
+
+### 4. Customization
+
+An alert is a `tk.Button`, so any button option overrides the default design:
+
+```python
+alert_generator.send(
+    text="Saved to disk",
+    type=tk_a.AlertType.SUCCESS,
+    font=("Helvetica", 12, "bold"),
+    background="#222222",
+    foreground="#FFFFFF",
+    command=lambda: print("Alert clicked"),
+)
+```
+
+Passing your own `command` replaces the default click-to-dismiss behaviour; the alert still disappears after its duration.
+
+### 5. Default Alert Design
 
 <img src="https://raw.githubusercontent.com/DragosPancescu/tk-alert/1ea29609d33557d096d39468a062fed07ea59be1/resources/AlertsDesign.png" width="410" height="202">
 
+## Known Limitations
+
+- The parent of an alert must be a `tk.Tk`, `tk.Frame` or `tk.Toplevel` (or a subclass). Other containers, such as `ttk.Frame`, are rejected.
+- Alert text is a single line. Text that does not fit is truncated, and there is no way yet to read the rest.
+- Stacking is tracked per `AlertGenerator`. Alerts sent by two generators to the same parent and anchor overlap.
+
 ## Development
 
-The project is managed with [uv](https://docs.astral.sh/uv/). Packaging metadata lives in `pyproject.toml` and the build backend is `uv_build`.
+The project is managed with [uv](https://docs.astral.sh/uv/). Packaging metadata lives in `pyproject.toml` and the build backend is `uv_build`. The test suite is run on Python 3.8 to 3.14.
 
 ```sh
 # Create .venv and install the package (editable) plus dev dependencies
@@ -105,7 +150,8 @@ This package is a **work in progress**. Below is the roadmap for the upcoming de
 
 - [ ] **Tooltip on Hover**: Whenever the text inside the alert is truncated, a tooltip should appear on hover.
 - [x] **Support for Multiple Python 3 Versions**: Extend compatibility to support multiple versions of Python 3.
-- [ ] **Tests**: Implement testing to ensure code reliability.
+- [x] **Tests**: Implement testing to ensure code reliability.
+- [x] **Stacking**: Alerts sent to the same anchor stack instead of overlapping.
 - [ ] **Configuration System for the AlertGenerator Class**: Develop a configuration system where a config object can be created and injected into the class. This will eliminate the need to pass configurations at runtime every time the `.send()` method is called.
 - [ ] **Better Icon Support**: Enhance icon support, allowing users to change icons rather than relying on predefined options.
 - [ ] **Minimum Width Constraint**: Implement a feature to constrain the alert with a `min_width` argument.
@@ -114,3 +160,5 @@ This package is a **work in progress**. Below is the roadmap for the upcoming de
 ## License
 
 This project is licensed under the **MIT License**. See the [LICENSE](https://github.com/DragosPancescu/tk-alert/blob/main/LICENSE.txt) file for more details.
+
+The default icons are from [Streamline](https://streamlinehq.com), licensed under CC BY 4.0. See [notices.md](https://github.com/DragosPancescu/tk-alert/blob/main/notices.md).

@@ -3,14 +3,13 @@ name = "tk-alert"
 version = "0.0.2"
 description = "Tkinter based package for sending GUI alerts / notifications."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = "MIT"
 license-files = ["LICENSE.txt", "notices.md"]
 authors = [{ name = "Dragos Pancescu", email = "dragos.pnc@gmail.com" }]
 keywords = ["tkinter", "alert", "notification", "gui"]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
