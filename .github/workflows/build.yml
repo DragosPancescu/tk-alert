@@ -1,0 +1,64 @@
+name: Build and release
+
+# Runs when pyproject.toml changes on main. If the version in it has no
+# v<version> tag yet, runs the tests, builds the sdist and wheel and creates
+# a GitHub release with them attached. Nothing is uploaded to PyPI.
+on:
+  push:
+    branches: [main]
+    paths: [pyproject.toml]
+
+jobs:
+  check:
+    name: Check version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release: ${{ steps.version.outputs.release }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # All tags are needed for the check below
+
+      - uses: astral-sh/setup-uv@v10.3.3
+
+      - name: Check whether the version is already released
+        id: version
+        run: |
+          version=$(uv version --short)
+          if git rev-parse -q --verify "refs/tags/v$version" > /dev/null; then release=false; else release=true; fi
+          echo "Version $version, release needed: $release"
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "release=$release" >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: check
+    if: needs.check.outputs.release == 'true'
+    uses: ./.github/workflows/tests.yml
+
+  release:
+    name: Release ${{ needs.check.outputs.version }}
+    needs: [check, test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Create the tag and the release
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.3.3
+
+      - name: Build sdist and wheel
+        run: uv build
+
+      - name: Check the wheel installs and imports
+        run: uv run --isolated --no-project --with dist/*.whl python -c "import tk_alert"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "v${{ needs.check.outputs.version }}" dist/*
+          --title "v${{ needs.check.outputs.version }}"
+          --target "${{ github.sha }}"
+          --generate-notes
