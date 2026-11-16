@@ -1,9 +1,9 @@
-/src/__pycache__
-/src/tk_alert/__pycache__
-src/tk_alert.egg-info
+__pycache__/
+*.egg-info/
+.venv/
 /venv
-dist
-build
-/test/__pycache__
+dist/
+build/
+.pytest_cache/
 /requirements.txt
 /.tox

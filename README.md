@@ -1,4 +1,4 @@
-[![python](https://img.shields.io/badge/Python-3.10-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
+[![python](https://img.shields.io/badge/Python-3.7%2B-3776AB.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/tk-alert)](https://pypistats.org/packages/tk-alert)
 
@@ -14,6 +14,7 @@
    - **[Setup](#1-setup)**  
    - **[Example Code](#2-example-code)**  
    - **[Default Alert Design](#3-default-alert-design)**  
+4. **[Development](#development)**  
 5. **[Roadmap Items](#roadmap-items)**  
 6. **[License](#license)**  
   
@@ -31,7 +32,7 @@ This example demonstrates how to create a basic Tkinter window and utilize the `
 
 ### 1. Setup
 
-First, install the library using pip:
+First, install the library using pip (or `uv add tk-alert` in a uv project):
 
 ```sh
 pip install tk-alert
@@ -66,6 +67,37 @@ if __name__ == "__main__":
 ### 3. Default Alert Design
 
 <img src="https://raw.githubusercontent.com/DragosPancescu/tk-alert/1ea29609d33557d096d39468a062fed07ea59be1/resources/AlertsDesign.png" width="410" height="202">
+
+## Development
+
+The project is managed with [uv](https://docs.astral.sh/uv/). Packaging metadata lives in `pyproject.toml` and the build backend is `uv_build`.
+
+```sh
+# Create .venv and install the package (editable) plus dev dependencies
+uv sync
+
+# Run the tests (they open Tk windows, so a display is required)
+uv run pytest
+
+# Run the tests against another Python version (uv downloads it if needed)
+uv run --isolated --python 3.12 pytest
+
+# Try the example app
+uv run example.py
+```
+
+### Build and publish
+
+```sh
+# Bump the version in pyproject.toml (patch | minor | major)
+uv version --bump patch
+
+# Build the sdist and wheel into dist/
+uv build
+
+# Upload to PyPI (needs a PyPI token, e.g. in UV_PUBLISH_TOKEN)
+uv publish
+```
 
 ## Roadmap Items
 

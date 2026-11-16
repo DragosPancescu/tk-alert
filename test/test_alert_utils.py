@@ -3,7 +3,7 @@ from itertools import product
 import tkinter as tk
 import pytest
 
-from src import AlertType, AlertGenerator
+from tk_alert import Alert, AlertType, AlertGenerator
 
 
 @pytest.fixture(scope="module")
@@ -60,9 +60,13 @@ def test_gridsearch_happy_path(
         pytest.fail(f"TclError occurred: {e}")
 
     finally:
-        # Cleanup
-        if "alert_generator" in locals():
-            del alert_generator
+        # Cleanup: destroy the alerts created by this test. Without a running
+        # mainloop the duration timer never fires, so they would pile up on the
+        # shared module-scoped parents.
+        if "root" in locals():
+            for child in root.winfo_children():
+                if isinstance(child, Alert):
+                    child.destroy()
 
 
 # If running the test outside of a script, ensure Tkinter mainloop is running
