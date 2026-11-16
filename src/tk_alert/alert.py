@@ -34,7 +34,7 @@ class Alert(tk.Button):
     """Alert widget, derived from tk.Button.
 
     Takes as init arguments the following: 
-     - parent (tk.Tk | tk.Frame | tk.Toplevel): Parent of the Alert widget.
+     - parent (tk.Misc): Parent of the Alert widget, one of the containers in SUPPORTED_PARENT_TYPES.
      - text (str): Text displayed in the Alert message.
      - type (AlertType): Type of the alert (info, warning, error or success)
      - anchor (str): Anchor that determines the placement, supports tk anchor constants
@@ -44,7 +44,7 @@ class Alert(tk.Button):
     Supports all the other Widget.configure() kwargs that a tk.Button has available.
     """
 
-    def __init__(self, parent: tk.Tk | tk.Frame | tk.Toplevel, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, **kwargs) -> None:
+    def __init__(self, parent: tk.Misc, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, **kwargs) -> None:
         # Enforce parent type before init
         if not check_parent_type(parent, SUPPORTED_PARENT_TYPES):
             # The `type` argument shadows the builtin in this scope, hence parent.__class__
@@ -165,7 +165,7 @@ class AlertGenerator():
     """Driver class for placing alerts on the screen.
 
     Takes as init argument only the parent of the alert, where the Alert widget will sit when placed.
-    Restricted to the following Widgets: tk.Tk, tk.Frame, tk.TopLevel
+    Restricted to container widgets: windows, frames, label frames, canvases, paned windows and notebooks (see SUPPORTED_PARENT_TYPES)
 
     .send() is the functionality that sends alerts to the parent Widget.
 
@@ -174,7 +174,7 @@ class AlertGenerator():
     As after each .send() call the Alert widget gets destroyed it should not impact the memory to have the object as a class attribute.
     """
 
-    def __init__(self, parent: tk.Tk | tk.Frame | tk.Toplevel) -> None:
+    def __init__(self, parent: tk.Misc) -> None:
         # Enforce parent type before init
         if not check_parent_type(parent, SUPPORTED_PARENT_TYPES):
             raise TypeError(

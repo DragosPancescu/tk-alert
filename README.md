@@ -109,7 +109,7 @@ Passing your own `command` replaces the default click-to-dismiss behaviour; the 
 
 ## Known Limitations
 
-- The parent of an alert must be a `tk.Tk`, `tk.Frame` or `tk.Toplevel` (or a subclass). Other containers, such as `ttk.Frame`, are rejected.
+- The parent of an alert must be a container: `tk.Tk`, `tk.Toplevel`, `tk.Frame`, `tk.LabelFrame`, `tk.Canvas`, `tk.PanedWindow`, `ttk.Frame`, `ttk.LabelFrame` or `ttk.Notebook` (or a subclass). Other widgets, such as a `tk.Label`, are rejected.
 - Alert text is a single line. Text that does not fit is truncated, and there is no way yet to read the rest.
 - Stacking is tracked per `AlertGenerator`. Alerts sent by two generators to the same parent and anchor overlap.
 

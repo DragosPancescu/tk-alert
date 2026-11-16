@@ -4,6 +4,7 @@ import os
 import tkinter as tk
 
 from enum import unique, auto, Enum
+from tkinter import ttk
 
 
 @unique
@@ -78,7 +79,17 @@ ANCHOR_TO_COORDINATES_OPTION = {
     "se": {"x": 1, "y": 1},
 }
 
-SUPPORTED_PARENT_TYPES = (tk.Tk, tk.Frame, tk.Toplevel)
+SUPPORTED_PARENT_TYPES = (
+    tk.Tk,
+    tk.Toplevel,
+    tk.Frame,
+    tk.LabelFrame,
+    tk.Canvas,
+    tk.PanedWindow,
+    ttk.Frame,
+    ttk.LabelFrame,
+    ttk.Notebook,
+)
 
 # Pixels between two alerts stacked on the same anchor
 STACK_SPACING = 5

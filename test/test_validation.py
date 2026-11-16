@@ -1,6 +1,8 @@
 import tkinter as tk
 import pytest
 
+from tkinter import ttk
+
 from tk_alert import Alert, AlertGenerator, AlertType
 
 
@@ -25,6 +27,25 @@ def test_alert_rejects_unsupported_parent_with_clear_message(root):
 def test_generator_rejects_unsupported_parent_with_clear_message(root):
     with pytest.raises(TypeError, match=r"Unsupported parent type: <class 'tkinter\.Label'>"):
         AlertGenerator(tk.Label(root))
+
+
+@pytest.mark.parametrize(
+    "container",
+    [tk.Frame, tk.LabelFrame, tk.Canvas, tk.PanedWindow, ttk.Frame, ttk.LabelFrame, ttk.Notebook],
+)
+def test_alert_is_shown_inside_supported_containers(root, container):
+    root.geometry("800x600")
+    parent = container(root)
+    parent.pack(fill="both", expand=True)
+    root.update()
+
+    AlertGenerator(parent).send("Test", AlertType.INFO, tk.NE, 60, 15, 0.33)
+    root.update()
+    alert = parent.winfo_children()[0]
+
+    assert isinstance(alert, Alert)
+    assert alert.winfo_ismapped()
+    assert alert.winfo_width() == pytest.approx(parent.winfo_width() * 0.33, abs=3)
 
 
 @pytest.mark.parametrize(

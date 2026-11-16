@@ -12,7 +12,7 @@ def check_parent_type(parent: tk.Widget, supported_parent_types: tuple[tk.Widget
     return True
 
 
-def truncate_text(alert: tk.Widget, parent: tk.Tk | tk.Frame | tk.Toplevel) -> str:
+def truncate_text(alert: tk.Widget, parent: tk.Misc) -> str:
     text_font = font.Font(font=alert.cget("font"))  # Gets Font object
     ellipsis = "..."
 
