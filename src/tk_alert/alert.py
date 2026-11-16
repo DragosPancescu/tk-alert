@@ -20,7 +20,9 @@ from .constants import (
     DESIGN_MAP,
     ANCHOR_TO_COORDINATES_OPTION,
     SUPPORTED_PARENT_TYPES,
-    STACK_SPACING
+    STACK_SPACING,
+    ANIMATION_STEP_MS,
+    ANIMATION_EASING
 )
 
 from .config import AlertConfig
@@ -45,11 +47,12 @@ class Alert(tk.Button):
      - width_percentage (flaot): Used to calculate width of the alert in accordance to the width of the parent
      - min_width (int): Width in pixels the Alert never gets smaller than, 0 means no minimum
      - icon (str | os.PathLike | tk.PhotoImage | bool | None): Path of an image file or a ready PhotoImage, False for no icon, None for the default icon of the type
+     - animate (bool): Slide the Alert in and out, and glide to its new place when the stack changes
 
     Supports all the other Widget.configure() kwargs that a tk.Button has available.
     """
 
-    def __init__(self, parent: tk.Misc, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, min_width: int = 0, icon: str | os.PathLike | tk.PhotoImage | bool | None = None, **kwargs) -> None:
+    def __init__(self, parent: tk.Misc, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, min_width: int = 0, icon: str | os.PathLike | tk.PhotoImage | bool | None = None, animate: bool = False, **kwargs) -> None:
         # Enforce parent type before init
         if not check_parent_type(parent, SUPPORTED_PARENT_TYPES):
             raise TypeError(
@@ -82,10 +85,18 @@ class Alert(tk.Button):
         self._extra_width = 0
         self._anchor = anchor
         self._margin = margin
-        
+
+        # Movement, offsets are (x, y) pixels from the anchored position
+        self._animate = animate
+        self._offset = None  # None until the Alert is placed for the first time
+        self._target = (0, 0)
+        self._on_arrival = None
+        self._animation_id = None
+        self._dismissed = False
+
         # Set default command if command method is not provided
         if not kwargs.get("command", None):
-            kwargs["command"] = self.destroy
+            kwargs["command"] = self.dismiss
             
         # Configs, an icon that can't be loaded or an unknown option must not leave the widget behind
         try:
@@ -183,13 +194,76 @@ class Alert(tk.Button):
         """Places the Alert, stack_offset moves it that many pixels away from its anchor edge.
 
         Bottom anchors stack upwards, all the others stack downwards.
+        An animated Alert slides in the first time and glides to its new place afterwards.
         """
-        placement = dict(self._placement_kwargs)
-        direction = -1 if self._anchor in ["sw", "s", "se"] else 1
-        placement["y"] += direction * stack_offset
+        if self._dismissed:
+            return
 
+        direction = -1 if self._anchor in ["sw", "s", "se"] else 1
+        y = direction * stack_offset
+
+        if self._offset is None:
+            self._offset = self._hidden_offset(y) if self._animate else (0, y)
+        self._move_to(0, y)
+
+    def dismiss(self) -> None:
+        """Removes the Alert, an animated Alert slides out first."""
+        if self._dismissed:
+            return
+        self._dismissed = True
+
+        if self._animate and self._offset is not None:
+            self._move_to(*self._hidden_offset(self._target[1]), on_arrival=self.destroy)
+        else:
+            self.destroy()
+
+    def destroy(self) -> None:
+        if self._animation_id is not None:
+            self.after_cancel(self._animation_id)
+            self._animation_id = None
+        super().destroy()
+
+    def _hidden_offset(self, y: float) -> tuple:
+        """Offset that puts the Alert just outside the parent, on the side of its anchor.
+
+        Left and right anchors leave sideways, top and bottom ones vertically, the center anchor stays where it is.
+        """
+        width = max(self._parent.winfo_width() * self._width_percentage, self._min_width) + self._margin
+        height = self.winfo_reqheight() + self._margin
+
+        x = update_x_margin(0, -width, self._anchor)
+        if x:
+            return (x, y)
+        return (0, update_y_margin(0, -height, self._anchor) or y)
+
+    def _move_to(self, x: float, y: float, on_arrival=None) -> None:
+        """Moves the Alert to the offset (x, y), step by step if it is animated. on_arrival is called once it is there."""
+        self._target = (x, y)
+        self._on_arrival = on_arrival
+        if not self._animate:
+            self._offset = self._target
+        if self._animation_id is None:
+            self._step()
+
+    def _step(self) -> None:
+        self._animation_id = None
+
+        # Each step covers a part of the distance left, so the movement slows down as it arrives
+        self._offset = tuple(
+            target if abs(target - current) <= 1 else current + (target - current) / ANIMATION_EASING
+            for current, target in zip(self._offset, self._target)
+        )
+
+        placement = dict(self._placement_kwargs)
+        placement["x"] += round(self._offset[0])
+        placement["y"] += round(self._offset[1])
         self.place(**placement)
         self.lift()
+
+        if self._offset != self._target:
+            self._animation_id = self.after(ANIMATION_STEP_MS, self._step)
+        elif self._on_arrival:
+            self._on_arrival()
 
 
 class AlertGenerator():
@@ -239,7 +313,7 @@ class AlertGenerator():
             self._alerts.remove(alert)
             self._restack()
 
-    def send(self, text: str, type: AlertType, anchor: str | None = None, duration: int | float | None = None, margin: int | float | None = None, width_percentage: float | None = None, min_width: int | None = None, icon: str | os.PathLike | tk.PhotoImage | bool | None = None, **kwargs) -> None:
+    def send(self, text: str, type: AlertType, anchor: str | None = None, duration: int | float | None = None, margin: int | float | None = None, width_percentage: float | None = None, min_width: int | None = None, icon: str | os.PathLike | tk.PhotoImage | bool | None = None, animate: bool | None = None, **kwargs) -> None:
         """Create the Alert Widget, places it according to the anchor for the specified duration and then destroys it from memory.
 
         Args:
@@ -251,6 +325,7 @@ class AlertGenerator():
          - width_percentage (optional): Used to calculate width of the alert in accordance to the width of the parent.
          - min_width (optional): Width in pixels the Alert never gets smaller than.
          - icon (optional): Path of an image file or a ready tk.PhotoImage, False for no icon.
+         - animate (optional): Slide the Alert in and out, and glide to its new place when the stack changes.
 
         The optional arguments that are not passed (or passed as None) take their value from the AlertConfig of the generator.
 
@@ -264,6 +339,7 @@ class AlertGenerator():
         width_percentage = self._config.width_percentage if width_percentage is None else width_percentage
         min_width = self._config.min_width if min_width is None else min_width
         icon = self._config.icons.get(type) if icon is None else icon
+        animate = self._config.animate if animate is None else animate
         kwargs = {**self._config.button_options, **kwargs}
 
         # Checks, the Alert widget validates the rest of the arguments itself
@@ -271,12 +347,12 @@ class AlertGenerator():
             raise ValueError(f"Negative duration value: {duration}, allowed values are greater or equal than 0.")
 
         # Create Alert Widget
-        alert = Alert(self._parent, text, type, anchor, margin, width_percentage, min_width, icon, **kwargs)
+        alert = Alert(self._parent, text, type, anchor, margin, width_percentage, min_width, icon, animate, **kwargs)
 
         # Place it after the alerts already shown on its anchor, and close the gap when it goes away
         self._alerts.append(alert)
         alert.bind("<Destroy>", lambda event: self._on_alert_destroyed(alert), add="+")
         self._restack()
 
-        # Wait duration and destroy, Tk only accepts whole milliseconds
-        alert.after(int(duration * 1000), alert.destroy)
+        # Wait duration and remove it, Tk only accepts whole milliseconds
+        alert.after(int(duration * 1000), alert.dismiss)

@@ -93,3 +93,8 @@ SUPPORTED_PARENT_TYPES = (
 
 # Pixels between two alerts stacked on the same anchor
 STACK_SPACING = 5
+
+# Animated alerts move every ANIMATION_STEP_MS milliseconds, each step
+# covers 1 / ANIMATION_EASING of the distance left
+ANIMATION_STEP_MS = 15
+ANIMATION_EASING = 3

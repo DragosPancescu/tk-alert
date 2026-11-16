@@ -22,6 +22,7 @@ class AlertConfig:
      - min_width: Width in pixels the Alert never gets smaller than. Defaults to 0, no minimum.
      - icons: Icon per AlertType replacing the default one, for example {AlertType.INFO: "bell.png"}.
        A value is the path of an image file, a ready tk.PhotoImage or False for no icon.
+     - animate: Slide alerts in and out, and glide them to their new place when the stack changes. Defaults to False.
      - button_options: tk.Button options applied to every alert, for example {"font": ("Helvetica", 12)}
     """
 
@@ -31,4 +32,5 @@ class AlertConfig:
     width_percentage: float = 0.33
     min_width: int = 0
     icons: dict = field(default_factory=dict)
+    animate: bool = False
     button_options: dict = field(default_factory=dict)
