@@ -46,8 +46,9 @@ class Alert(tk.Button):
     def __init__(self, parent: tk.Tk | tk.Frame | tk.Toplevel, text: str, type: AlertType, anchor: str, margin: int, width_percentage: float, **kwargs) -> None:
         # Enforce parent type before init
         if not check_parent_type(parent, SUPPORTED_PARENT_TYPES):
+            # The `type` argument shadows the builtin in this scope, hence parent.__class__
             raise TypeError(
-                f"Unsupported parent type: {type(parent)}, supported (derived from) types are: {SUPPORTED_PARENT_TYPES}"
+                f"Unsupported parent type: {parent.__class__}, supported (derived from) types are: {SUPPORTED_PARENT_TYPES}"
             )
             
         super().__init__(parent)
