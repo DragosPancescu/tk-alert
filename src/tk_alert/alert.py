@@ -220,7 +220,7 @@ class AlertGenerator():
         if duration < 0:
             raise ValueError(f"Negative duration value: {duration}, allowed values are greater or equal than 0.")
 
-        # Create Alert Widge
+        # Create Alert Widget
         alert = Alert(self._parent, text, type, anchor, margin, width_percentage, **kwargs)
 
         # Place it after the alerts already shown on its anchor, and close the gap when it goes away
