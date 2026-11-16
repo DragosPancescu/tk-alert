@@ -68,9 +68,9 @@ class Alert(tk.Button):
         self.configure(**self.design)
         self._placement_kwargs = self._calculate_placement_kwargs()
 
-        # Callback binding on width change, as width is changing dynamically with the parent,
-        # we can only bind <Configure> on the Alert
-        self.bind("<Configure>", lambda event: self._configure_callback(event))
+        # Placement follows the parent natively (relative coordinates), so the only thing
+        # left to do when the Alert is resized is to re-fit the text to the new width
+        self.bind("<Configure>", self._configure_callback)
     
     @property
     def text(self):
@@ -83,16 +83,12 @@ class Alert(tk.Button):
     ##### <Configure> bind callback logic #####
     
     def _configure_callback(self, event):
-        self.__update_alert_placement()
         self.__update_alert_text()
 
     def __update_alert_text(self):
         truncated_text = truncate_text(self, self._parent, self.design["image"].width())
-        self.configure(text=truncated_text)
-
-    def __update_alert_placement(self):
-        self._placement_kwargs = self._calculate_placement_kwargs()
-        self.place_alert()
+        if truncated_text != self.cget("text"):
+            self.configure(text=truncated_text)
 
     #####
 
@@ -119,20 +115,22 @@ class Alert(tk.Button):
         return design
 
     def _calculate_placement_kwargs(self) -> dict:
-        self._parent.update_idletasks()  # Ensure dimensions are up to date
+        # Relative position inside the parent, based on the anchor. Tk's place geometry
+        # manager keeps it up to date when the parent is resized.
+        relative_position = ANCHOR_TO_COORDINATES_OPTION[self._anchor]
 
-        # Calculate the relative position based on the anchor
-        margin_options = ANCHOR_TO_COORDINATES_OPTION[self._anchor]
-        x = margin_options["x"] * self._parent.winfo_width()
-        y = margin_options["y"] * self._parent.winfo_height()
+        # Pixel offset from that relative position, pointing inwards
+        x_offset = update_x_margin(0, self._margin, self._anchor)
+        y_offset = update_y_margin(0, self._margin, self._anchor)
 
-        # Update x with margin
-        x = update_x_margin(x, self._margin, self._anchor)
-
-        # Update y with margin
-        y = update_y_margin(y, self._margin, self._anchor)
-
-        placement = {"anchor": self._anchor, "x": x, "y": y, "relwidth": self._width_percentage}
+        placement = {
+            "anchor": self._anchor,
+            "relx": relative_position["x"],
+            "rely": relative_position["y"],
+            "x": x_offset,
+            "y": y_offset,
+            "relwidth": self._width_percentage,
+        }
         return placement
 
     def place_alert(self) -> None:
